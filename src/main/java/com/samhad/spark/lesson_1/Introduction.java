@@ -32,7 +32,7 @@ public class Introduction implements MyRunner {
         LOGGER.info("*** \t *** \t ***");
         JavaRDD<Double> sqrtRdd = myRdd.map(integer -> Math.sqrt(integer));
         LOGGER.info("RDD foreach");
-        // this will loop across the RDD to display the value. In a multi-CPU environment, this will produce error.
+        // this will loop across the RDD to display the value. In a multi-socket CPU environment(not to confuse with multiple core CPU), this will produce error.
         sqrtRdd.foreach(aDouble -> LOGGER.info("root: {}", aDouble)); // RDD foreach
 
         LOGGER.info("*** \t *** \t ***");
