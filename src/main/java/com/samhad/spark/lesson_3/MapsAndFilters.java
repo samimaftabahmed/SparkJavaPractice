@@ -31,11 +31,11 @@ public class MapsAndFilters implements MyRunner {
         JavaRDD<String> logRdd = sc.parallelize(inputData)
                 .flatMap(words -> Arrays.asList(words.split(" ")).iterator());
 
-        LOGGER.info("*** \t *** \t ***");
+        LOGGER.info("2. *** \t *** \t ***");
         LOGGER.info("FlapMap");
         logRdd.foreach(word -> LOGGER.info("flatMap word: {}", word));
 
-        LOGGER.info("*** \t *** \t ***");
+        LOGGER.info("3. *** \t *** \t ***");
         LOGGER.info("Filter");
         logRdd.filter(word -> !StringUtils.isNumeric(word.trim()))
                 .foreach(word -> LOGGER.info("Filter word only: {}", word));

@@ -36,15 +36,15 @@ public class PairRDDsAndOperations implements MyRunner {
                     return new Tuple2<>(split[0], split[1]);
                 });
 
-        LOGGER.info("*** \t *** \t ***");
+        LOGGER.info("2. *** \t *** \t ***");
         logsPairRDD.foreach(tuple2 -> LOGGER.info("Level: {}, Message: {}", tuple2._1(), tuple2._2().trim()));
 
-        LOGGER.info("*** \t *** \t ***");
+        LOGGER.info("3. *** \t *** \t ***");
         logsPairRDD.groupByKey()
                 .foreach(tuple -> LOGGER.info("Key: {}, Iterable size: {}", tuple._1(), Iterables.size(tuple._2())));
 
         // reduceByKey() is preferred over groupByKey() due to performance and stability reasons
-        LOGGER.info("*** \t *** \t ***");
+        LOGGER.info("4. *** \t *** \t ***");
         sc.parallelize(inputData)
                 .mapToPair(data -> {
                     String[] split = data.split(":");

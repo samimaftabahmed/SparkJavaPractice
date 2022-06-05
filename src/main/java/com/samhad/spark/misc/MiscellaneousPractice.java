@@ -22,13 +22,13 @@ public class MiscellaneousPractice implements MyRunner {
         List<Integer> integerList = Arrays.asList(1, 55, 2, 65, 7, 3);
         LOGGER.info("The Integer List: {}", integerList);
 
-        LOGGER.info("*** \t *** \t ***");
+        LOGGER.info("2. *** \t *** \t ***");
         sc.parallelize(integerList).top(3).forEach(integer -> LOGGER.info("Top: {}", integer));
 
-        LOGGER.info("*** \t *** \t ***");
+        LOGGER.info("3. *** \t *** \t ***");
         sc.parallelize(integerList).take(3).forEach(integer -> LOGGER.info("Take: {}", integer));
 
-        LOGGER.info("*** \t *** \t ***");
+        LOGGER.info("4. *** \t *** \t ***");
         sc.textFile("D:\\words.txt").foreach(s -> LOGGER.info("text: {}", s));
 
     }
