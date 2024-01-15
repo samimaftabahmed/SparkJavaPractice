@@ -20,11 +20,13 @@ public class PairRDDsAndOperations implements MyRunner {
 
     @Override
     public void execute(JavaSparkContext sc) {
-
-        LOGGER.info("---------------------------------------------------------");
+        LOGGER.info("\n---------------------------------------------------------");
 
         List<String> inputData = Arrays.asList(
                 "WARN: Tuesday 4 September 0405",
+                "ERROR: Tuesday 4 September 0408",
+                "ERROR: Tuesday 4 September 0408",
+                "ERROR: Tuesday 4 September 0408",
                 "ERROR: Tuesday 4 September 0408",
                 "FATAL: Tuesday 5 September 1632",
                 "ERROR: Tuesday 7 September 1854",
@@ -44,7 +46,7 @@ public class PairRDDsAndOperations implements MyRunner {
                 .foreach(tuple -> LOGGER.info("Key: {}, Iterable size: {}", tuple._1(), Iterables.size(tuple._2())));
 
         // reduceByKey() is preferred over groupByKey() due to performance and stability reasons
-        LOGGER.info("4. *** \t *** \t ***");
+        LOGGER.info("4. *** \t *** \t *** \n\n\n");
         sc.parallelize(inputData)
                 .mapToPair(data -> {
                     String[] split = data.split(":");
@@ -52,6 +54,5 @@ public class PairRDDsAndOperations implements MyRunner {
                 })
                 .reduceByKey((v1, v2) -> v1 + v2)
                 .foreach(tuple2 -> LOGGER.info("Key: {}, Iterable size: {}", tuple2._1(), tuple2._2()));
-
     }
 }

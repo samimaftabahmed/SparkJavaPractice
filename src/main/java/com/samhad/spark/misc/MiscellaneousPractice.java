@@ -17,8 +17,7 @@ public class MiscellaneousPractice implements MyRunner {
 
     @Override
     public void execute(JavaSparkContext sc) {
-
-        LOGGER.info("---------------------------------------------------------");
+        LOGGER.info("\n---------------------------------------------------------");
         List<Integer> integerList = Arrays.asList(1, 55, 2, 65, 7, 3);
         LOGGER.info("The Integer List: {}", integerList);
 

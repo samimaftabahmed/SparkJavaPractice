@@ -19,8 +19,7 @@ public class MapsAndFilters implements MyRunner {
 
     @Override
     public void execute(JavaSparkContext sc) {
-
-        LOGGER.info("---------------------------------------------------------");
+        LOGGER.info("\n---------------------------------------------------------");
         List<String> inputData = Arrays.asList(
                 "WARN: Tuesday 4 September 0405",
                 "ERROR: Tuesday 4 September 0408",
@@ -31,10 +30,12 @@ public class MapsAndFilters implements MyRunner {
         JavaRDD<String> logRdd = sc.parallelize(inputData)
                 .flatMap(words -> Arrays.asList(words.split(" ")).iterator());
 
+        LOGGER.info("\n\n");
         LOGGER.info("2. *** \t *** \t ***");
         LOGGER.info("FlapMap");
         logRdd.foreach(word -> LOGGER.info("flatMap word: {}", word));
 
+        LOGGER.info("\n\n");
         LOGGER.info("3. *** \t *** \t ***");
         LOGGER.info("Filter");
         logRdd.filter(word -> !StringUtils.isNumeric(word.trim()))

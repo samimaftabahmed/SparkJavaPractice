@@ -19,8 +19,7 @@ public class Introduction implements MyRunner {
 
     @Override
     public void execute(JavaSparkContext sc) {
-
-        LOGGER.info("---------------------------------------------------------");
+        LOGGER.info("\n---------------------------------------------------------");
         List<Integer> inputData = Arrays.asList(36, 49, 100, 121);
         JavaRDD<Integer> myRdd = sc.parallelize(inputData);
         myRdd.foreach(integer -> LOGGER.info("myRdd: {}", integer));
