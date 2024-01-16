@@ -31,7 +31,9 @@ public class Introduction implements MyRunner {
         LOGGER.info("3. *** \t *** \t ***");
         JavaRDD<Double> sqrtRdd = myRdd.map(integer -> Math.sqrt(integer));
         LOGGER.info("RDD foreach");
-        // this will loop across the RDD to display the value. In a multi-socket CPU environment(not to confuse with multiple core CPU), this will produce error.
+        // this will loop across the RDD to display the value. In a multi-socket CPU environment(not to confuse with multiple core CPU),
+        // this will produce NotSerializableException as println method is non-serializable. The solution to that is to collect
+        // the collection and then iterate over it, demonstrated on the next operation step 4.
         sqrtRdd.foreach(aDouble -> LOGGER.info("root: {}", aDouble)); // RDD foreach
 
         LOGGER.info("4. *** \t *** \t ***");
