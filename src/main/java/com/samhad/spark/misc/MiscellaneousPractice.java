@@ -21,14 +21,18 @@ public class MiscellaneousPractice implements MyRunner {
         List<Integer> integerList = Arrays.asList(1, 55, 2, 65, 7, 3);
         LOGGER.info("The Integer List: {}", integerList);
 
-        LOGGER.info("2. *** \t *** \t ***");
-        sc.parallelize(integerList).top(3).forEach(integer -> LOGGER.info("Top: {}", integer));
+        List<Integer> topList = sc.parallelize(integerList)
+                .top(3) // returns the largest 3 candidates
+                .stream().toList();
+        LOGGER.info("1. Top List: {}", topList);
 
-        LOGGER.info("3. *** \t *** \t ***");
-        sc.parallelize(integerList).take(3).forEach(integer -> LOGGER.info("Take: {}", integer));
+        List<Integer> takeList = sc.parallelize(integerList)
+                .take(3) // returns 3 candidates based on their insertion order
+                .stream().toList();
+        LOGGER.info("2. Take List: {}", takeList);
 
-        LOGGER.info("4. *** \t *** \t ***");
-        sc.textFile("D:\\words.txt").foreach(s -> LOGGER.info("text: {}", s));
+        List<String> wordsFromFile = sc.textFile("D:\\words.txt").collect();
+        LOGGER.info("3. WordsFromFile: {}", wordsFromFile);
 
     }
 }
