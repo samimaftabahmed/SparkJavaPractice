@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * Concepts on Map, FlapMap and Filter
+ * Section 7
  */
 public class MapsAndFilters implements MyRunner {
 
