@@ -14,16 +14,21 @@ public class Main {
         JavaSparkContext sc = null;
         try {
             sc = new JavaSparkContext(conf);
-            new MiscellaneousPractice().execute(sc); // Miscellaneous Spark Practice
-            new Introduction().execute(sc); // Lesson_1
-            new PairRDDsAndOperations().execute(sc); // Lesson_2
-            new MapsAndFilters().execute(sc); // Lesson_3
+            callManually(sc);
         } finally {
             if (sc != null)
                 sc.close();
         }
-
-
     }
 
+    /**
+     * Creating instances and call manually
+     * @param sc the Spark Context
+     */
+    private static void callManually(JavaSparkContext sc) {
+        new MiscellaneousPractice().execute(sc); // Miscellaneous Spark Practice
+        new Introduction().execute(sc); // Lesson_1
+        new PairRDDsAndOperations().execute(sc); // Lesson_2
+        new MapsAndFilters().execute(sc); // Lesson_3
+    }
 }
