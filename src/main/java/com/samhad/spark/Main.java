@@ -34,7 +34,7 @@ public class Main {
 
     /**
      * Creating instances and call manually
-     * @param sc the Spark Context
+     * @param sc - the Spark Context
      */
     private static void callManually(JavaSparkContext sc) {
         LOGGER.info("Instantiating and calling manually.");
@@ -46,7 +46,7 @@ public class Main {
 
     /**
      * Creating instances and calling with Class Graph
-     * @param sc
+     * @param sc - the Spark Context
      */
     private static void callWithClassGraph(JavaSparkContext sc) throws NoSuchMethodException, InvocationTargetException,
             InstantiationException, IllegalAccessException {
