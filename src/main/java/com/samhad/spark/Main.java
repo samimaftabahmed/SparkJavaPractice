@@ -26,6 +26,8 @@ public class Main {
             sc = new JavaSparkContext(conf);
 //            callManually(sc);
             callWithClassGraph(sc);
+        } catch (Exception e) {
+            LOGGER.error("Exception caught during execution: ", e);
         } finally {
             if (sc != null)
                 sc.close();
