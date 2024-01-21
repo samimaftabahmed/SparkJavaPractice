@@ -1,4 +1,4 @@
-package com.samhad.spark.misc;
+package com.samhad.spark.lesson_4;
 
 import com.samhad.spark.MyRunner;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Miscellaneous concepts learned from other sources. Some include: top(), take(), textFile()
+ * Miscellaneous concepts like top(), take(), textFile()
  * Section 8
  */
 public class MiscellaneousPractice implements MyRunner {
