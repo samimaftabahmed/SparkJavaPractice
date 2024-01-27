@@ -34,6 +34,7 @@ public class MapsAndFilters implements MyRunner {
         LOGGER.info("\n\n");
         LOGGER.info("2. *** \t *** \t ***");
         LOGGER.info("FlapMap");
+        // basically converting sentences to words
         logRdd.foreach(word -> LOGGER.info("flatMap word: {}", word));
 
         LOGGER.info("\n\n");

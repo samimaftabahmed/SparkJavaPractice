@@ -10,6 +10,10 @@ import scala.Tuple2;
 
 import java.util.Arrays;
 
+/**
+ * Word Count program exercise.
+ * Section 22 to 24.
+ */
 public class WordCount implements MyRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WordCount.class);
@@ -20,21 +24,22 @@ public class WordCount implements MyRunner {
         JavaRDD<String> rdd = sc.textFile("src/main/resources/dataset/sample.srt").cache();
         rdd = rdd
                 .map(s -> s.replaceAll("[^a-zA-Z\\s]", "").trim())
-                .filter(s -> !s.isEmpty());
+                .filter(s -> !s.isEmpty()); // cleaning out the RDD, leaving only words and sentences
+
         rdd = rdd.flatMap(s -> Arrays.asList(s.split(" ", -1)).iterator())
-                .filter(s -> !s.trim().isEmpty());
+                .filter(s -> !s.trim().isEmpty()); // converting sentences to words
 
         JavaPairRDD<String, Integer> pairRdd = rdd
                 .mapToPair(s -> new Tuple2<>(s, 1))
-                .reduceByKey((integer, integer2) -> integer + integer2);
+                .reduceByKey((integer, integer2) -> integer + integer2); // converting to pairRDD and reducing
 
         JavaPairRDD<Integer, String> transformedPairRdd = pairRdd
-                .mapToPair(tuple2 -> new Tuple2<>(tuple2._2(), tuple2._1()));
+                .mapToPair(tuple2 -> new Tuple2<>(tuple2._2(), tuple2._1())); // transforming the RDD, in order to take advantage of reduceByKey
 
         LOGGER.info("*** Using sortByKey ***");
         transformedPairRdd
                 .sortByKey(false)
-                .take(10)
+                .take(10) // sorting in descending order based on key and taking the top 10 highest occurrences of words
                 .forEach(tuple2 -> LOGGER.info("word: count -- {}: {}", tuple2._2(), tuple2._1()));
 
 //        LOGGER.info("*** Using top ***");
