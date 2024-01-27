@@ -5,7 +5,7 @@ A Java project used to learn and practice Apache Spark in Java.
 Note: package names are created based on own understandings.
 <br><br>
 
-Add the following as JVM arguments (not program arguments) during execution:
+For Spark 3 with Java 17 environment, add the following as JVM arguments (not program arguments) for execution:
 <br>
 
 --add-opens=java.base/java.lang=ALL-UNNAMED <br>
