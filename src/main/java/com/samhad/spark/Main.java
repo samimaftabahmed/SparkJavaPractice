@@ -29,6 +29,7 @@ public class Main {
         } catch (Exception e) {
             LOGGER.error("Exception caught during execution: ", e);
         } finally {
+            LOGGER.info("Execution completed. Closing Spark Context.");
             if (sc != null)
                 sc.close();
         }
