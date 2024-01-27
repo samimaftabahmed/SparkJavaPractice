@@ -18,8 +18,7 @@ public class Main {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String[] args) throws InvocationTargetException, NoSuchMethodException,
-            InstantiationException, IllegalAccessException {
+    public static void main(String[] args) throws Exception {
         SparkConf conf = new SparkConf().setAppName("LearningSpark").setMaster("local[*]");
         JavaSparkContext sc = null;
         try {
@@ -41,10 +40,10 @@ public class Main {
      */
     private static void callManually(JavaSparkContext sc) {
         LOGGER.info("Instantiating and calling manually.");
-        new MiscellaneousPractice().execute(sc); // Miscellaneous Spark Practice
         new Introduction().execute(sc); // Lesson_1
         new PairRDDsAndOperations().execute(sc); // Lesson_2
         new MapsAndFilters().execute(sc); // Lesson_3
+        new MiscellaneousPractice().execute(sc); // Lesson_4
     }
 
     /**
