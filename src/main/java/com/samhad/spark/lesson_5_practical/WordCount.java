@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Word Count program exercise.
@@ -36,16 +38,28 @@ public class WordCount implements MyRunner {
         JavaPairRDD<Integer, String> transformedPairRdd = pairRdd
                 .mapToPair(tuple2 -> new Tuple2<>(tuple2._2(), tuple2._1())); // transforming the RDD, in order to take advantage of reduceByKey
 
-        LOGGER.info("*** Using sortByKey ***");
+        int resultSize = 10;
+
+        LOGGER.info("*** Top {} words using 'sortByKey()' ***", resultSize);
         transformedPairRdd
                 .sortByKey(false)
-                .take(10) // sorting in descending order based on key and taking the top 10 highest occurrences of words
+                .take(resultSize) // sorting in descending order based on key and taking the top 10 highest occurrences of words
                 .forEach(tuple2 -> LOGGER.info("word: count -- {}: {}", tuple2._2(), tuple2._1()));
 
-//        LOGGER.info("*** Using top ***");
-//        transformedPairRdd
-//                .top(10, (o1, o2) -> Integer.compare(o1._1(), o2._1()));
+        LOGGER.info("\n\n");
+        LOGGER.info("*** Top {} words using 'top()' ***", resultSize);
+        transformedPairRdd
+                .top(resultSize, new TupleComparator())
+                .forEach(tuple2 -> LOGGER.info("word: count -- {}: {}", tuple2._2(), tuple2._1()));
+        /**
+         * Note: On a separate Spark program, it was observed that top() was faster than sortByKey() and take().
+         */
+    }
 
-
+    private static class TupleComparator implements Serializable, Comparator<Tuple2<Integer, String>> {
+        @Override
+        public int compare(Tuple2<Integer, String> o1, Tuple2<Integer, String> o2) {
+            return Integer.compare(o1._1(), o2._1());
+        }
     }
 }
