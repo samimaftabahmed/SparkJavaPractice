@@ -53,7 +53,7 @@ public class Main {
     private static void callWithClassGraph(JavaSparkContext sc) throws NoSuchMethodException, InvocationTargetException,
             InstantiationException, IllegalAccessException {
         LOGGER.info("Instantiating all implementations with Class Graph");
-        try (ScanResult scanResult = new ClassGraph().enableAllInfo().acceptPackages("com.samhad.spark").scan()) {
+        try (ScanResult scanResult = new ClassGraph().enableAllInfo().acceptPackages(Main.class.getPackageName()).scan()) {
             for (ClassInfo ci : scanResult.getClassesImplementing(SparkTask.class.getName())) {
                 SparkTask sparkTask = (SparkTask) ci.loadClass().getDeclaredConstructor().newInstance();
                 sparkTask.execute(sc);
