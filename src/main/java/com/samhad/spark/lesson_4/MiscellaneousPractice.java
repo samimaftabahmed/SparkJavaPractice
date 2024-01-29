@@ -1,6 +1,6 @@
 package com.samhad.spark.lesson_4;
 
-import com.samhad.spark.MyRunner;
+import com.samhad.spark.SparkTask;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,7 @@ import java.util.List;
  * Miscellaneous concepts like top(), take(), textFile()
  * Section 8
  */
-public class MiscellaneousPractice implements MyRunner {
+public class MiscellaneousPractice implements SparkTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MiscellaneousPractice.class);
 

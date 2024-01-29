@@ -1,6 +1,6 @@
 package com.samhad.spark.lesson_3;
 
-import com.samhad.spark.MyRunner;
+import com.samhad.spark.SparkTask;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -14,7 +14,7 @@ import java.util.List;
  * Concepts on Map, FlapMap and Filter
  * Section 7
  */
-public class MapsAndFilters implements MyRunner {
+public class MapsAndFilters implements SparkTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MapsAndFilters.class);
 

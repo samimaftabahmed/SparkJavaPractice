@@ -1,7 +1,7 @@
 package com.samhad.spark.lesson_2;
 
 import com.google.common.collect.Iterables;
-import com.samhad.spark.MyRunner;
+import com.samhad.spark.SparkTask;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import java.util.List;
  * Concepts on PairRDD, groupByKey(), reduceByKey()
  * Section 6
  */
-public class PairRDDsAndOperations implements MyRunner {
+public class PairRDDsAndOperations implements SparkTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PairRDDsAndOperations.class);
 

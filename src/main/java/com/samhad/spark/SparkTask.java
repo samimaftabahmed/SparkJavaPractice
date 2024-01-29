@@ -5,7 +5,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 /**
  * Just a Marker interface
  */
-public interface MyRunner {
+public interface SparkTask {
 
     void execute(JavaSparkContext sc);
 }

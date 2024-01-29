@@ -1,6 +1,6 @@
 package com.samhad.spark.lesson_5_practical;
 
-import com.samhad.spark.MyRunner;
+import com.samhad.spark.SparkTask;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -16,7 +16,7 @@ import java.util.Comparator;
  * Word Count program exercise.
  * Section 22 to 24.
  */
-public class WordCount implements MyRunner {
+public class WordCount implements SparkTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WordCount.class);
 

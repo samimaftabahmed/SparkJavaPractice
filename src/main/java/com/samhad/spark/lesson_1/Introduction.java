@@ -1,6 +1,6 @@
 package com.samhad.spark.lesson_1;
 
-import com.samhad.spark.MyRunner;
+import com.samhad.spark.SparkTask;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
@@ -14,7 +14,7 @@ import java.util.List;
  * All introduction related topics of Spark related to RDD, map(), reduce() and Tuple2
  * Section 1 to 5
  */
-public class Introduction implements MyRunner {
+public class Introduction implements SparkTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Introduction.class);
 

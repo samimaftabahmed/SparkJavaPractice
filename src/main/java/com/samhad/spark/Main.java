@@ -54,9 +54,9 @@ public class Main {
             InstantiationException, IllegalAccessException {
         LOGGER.info("Instantiating all implementations with Class Graph");
         try (ScanResult scanResult = new ClassGraph().enableAllInfo().acceptPackages("com.samhad.spark").scan()) {
-            for (ClassInfo ci : scanResult.getClassesImplementing("com.samhad.spark.MyRunner")) {
-                MyRunner myRunner = (MyRunner) ci.loadClass().getDeclaredConstructor().newInstance();
-                myRunner.execute(sc);
+            for (ClassInfo ci : scanResult.getClassesImplementing(SparkTask.class.getName())) {
+                SparkTask sparkTask = (SparkTask) ci.loadClass().getDeclaredConstructor().newInstance();
+                sparkTask.execute(sc);
             }
         }
     }
