@@ -3,7 +3,7 @@ package com.samhad.spark;
 import org.apache.spark.api.java.JavaSparkContext;
 
 /**
- * Just a Marker interface
+ * Any class implementing this interface will be executed.
  */
 public interface SparkTask {
 
