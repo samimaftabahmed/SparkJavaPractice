@@ -1,6 +1,8 @@
 # SparkJavaPractice
 
-A Java project used to learn and practice Apache Spark in Java. 
+A Java project used to learn and practice Apache Spark in Java.
+<br>
+Udemy course: https://www.udemy.com/course/apache-spark-for-java-developers
 <br>
 Note: package names are created based on own understandings.
 <br>
