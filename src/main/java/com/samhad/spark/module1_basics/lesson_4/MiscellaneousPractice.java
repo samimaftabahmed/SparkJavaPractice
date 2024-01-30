@@ -1,6 +1,6 @@
-package com.samhad.spark.lesson_4;
+package com.samhad.spark.module1_basics.lesson_4;
 
-import com.samhad.spark.SparkTask;
+import com.samhad.spark.common.SparkTask;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

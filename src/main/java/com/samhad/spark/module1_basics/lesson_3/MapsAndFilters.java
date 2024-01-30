@@ -1,6 +1,6 @@
-package com.samhad.spark.lesson_3;
+package com.samhad.spark.module1_basics.lesson_3;
 
-import com.samhad.spark.SparkTask;
+import com.samhad.spark.common.SparkTask;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;

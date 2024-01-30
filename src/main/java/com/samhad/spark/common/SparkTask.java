@@ -1,4 +1,4 @@
-package com.samhad.spark;
+package com.samhad.spark.common;
 
 import org.apache.spark.api.java.JavaSparkContext;
 
@@ -7,5 +7,10 @@ import org.apache.spark.api.java.JavaSparkContext;
  */
 public interface SparkTask {
 
+    /**
+     * Executes the implementation in Spark
+     *
+     * @param sc - The spark context
+     */
     void execute(JavaSparkContext sc);
 }

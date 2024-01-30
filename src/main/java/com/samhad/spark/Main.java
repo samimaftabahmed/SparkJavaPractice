@@ -1,9 +1,10 @@
 package com.samhad.spark;
 
-import com.samhad.spark.lesson_1.Introduction;
-import com.samhad.spark.lesson_2.PairRDDsAndOperations;
-import com.samhad.spark.lesson_3.MapsAndFilters;
-import com.samhad.spark.lesson_4.MiscellaneousPractice;
+import com.samhad.spark.common.SparkTask;
+import com.samhad.spark.module1_basics.lesson_1.Introduction;
+import com.samhad.spark.module1_basics.lesson_2.PairRDDsAndOperations;
+import com.samhad.spark.module1_basics.lesson_3.MapsAndFilters;
+import com.samhad.spark.module1_basics.lesson_4.MiscellaneousPractice;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;

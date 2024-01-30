@@ -1,7 +1,7 @@
-package com.samhad.spark.lesson_2;
+package com.samhad.spark.module1_basics.lesson_2;
 
 import com.google.common.collect.Iterables;
-import com.samhad.spark.SparkTask;
+import com.samhad.spark.common.SparkTask;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;

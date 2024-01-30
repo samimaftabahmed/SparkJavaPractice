@@ -1,6 +1,6 @@
-package com.samhad.spark.lesson_5_practical;
+package com.samhad.spark.module1_basics.lesson_5_practical;
 
-import com.samhad.spark.SparkTask;
+import com.samhad.spark.common.SparkTask;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
