@@ -3,6 +3,8 @@
 A Java project used to learn and practice Apache Spark in Java. 
 <br>
 Note: package names are created based on own understandings.
+<br>
+**TODO**: Yet to practice **"Section 11: Deploying to AWS EMR (Optional)"**
 <br><br>
 
 For Spark 3 with Java 17 environment, add the following as JVM arguments (not program arguments) for execution:
