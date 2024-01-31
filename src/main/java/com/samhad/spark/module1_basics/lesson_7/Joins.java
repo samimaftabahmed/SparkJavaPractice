@@ -12,6 +12,10 @@ import scala.Tuple2;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Concepts on join(), leftOuterJoin(), rightOuterJoin(), fullOuterJoin(), cartesian().
+ * Section: 12.
+ */
 public class Joins implements SparkTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Joins.class);
