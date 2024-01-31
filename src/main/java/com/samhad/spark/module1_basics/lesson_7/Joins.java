@@ -25,22 +25,15 @@ public class Joins implements SparkTask {
         LOGGER.info("\n---------------------------------------------------------");
         List<String> data = sc.textFile("src/main/resources/dataset/salary.csv").collect();
         data = data.stream().filter(s -> !s.equals("Last Name,First Name,Status,Salary")).toList();
-        List<String> nameStatusData = data.stream().map(s -> {
-            String[] split = s.split(",");
-            return split[1] + "," + split[2];
-        }).collect(Collectors.toList());
 
+        List<String> nameStatusData = getData(data, 1, 2);
         // the following added values will be missing out from inner-joined and left-outer-joined pair RDD
         nameStatusData.add("Nehra,Full Time");
         nameStatusData.add("Shami,Full Time");
         nameStatusData.add("Brett,Full Time");
         nameStatusData.add("Shoaib,Full Time");
 
-        List<String> nameSalaryData = data.stream().map(s -> {
-            String[] split = s.split(",");
-            return split[1] + "," + split[3];
-        }).collect(Collectors.toList()); // mutable list
-
+        List<String> nameSalaryData = getData(data, 1, 3);
         // the following added values will be missing out from inner-joined and right-outer-joined pair RDD
         nameSalaryData.add("Bruce,\"$500000\"");
         nameSalaryData.add("John,\"$70000\"");
@@ -109,5 +102,12 @@ public class Joins implements SparkTask {
         cartesianRDD.foreach(jpr -> {
             LOGGER.info("{} --- {}", jpr._1(), jpr._2());
         });
+    }
+
+    private List<String> getData(List<String> data, int columnA, int columnB) {
+        return data.stream().map(s -> {
+            String[] split = s.split(",");
+            return split[columnA] + "," + split[columnB];
+        }).collect(Collectors.toList());
     }
 }
