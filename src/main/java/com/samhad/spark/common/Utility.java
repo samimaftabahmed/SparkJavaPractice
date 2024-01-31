@@ -1,6 +1,10 @@
 package com.samhad.spark.common;
 
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ScanResult;
 import org.apache.commons.io.IOUtils;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -53,4 +58,18 @@ public class Utility {
         }
     }
 
+    /**
+     * Creating instances and calling with Class Graph
+     * @param sc - the Spark Context
+     */
+    public static void callWithClassGraph(JavaSparkContext sc, String packageName) throws NoSuchMethodException, InvocationTargetException,
+            InstantiationException, IllegalAccessException {
+        LOGGER.info("Instantiating all implementations with Class Graph");
+        try (ScanResult scanResult = new ClassGraph().enableAllInfo().acceptPackages(packageName).scan()) {
+            for (ClassInfo ci : scanResult.getClassesImplementing(SparkTask.class.getName())) {
+                SparkTask sparkTask = (SparkTask) ci.loadClass().getDeclaredConstructor().newInstance();
+                sparkTask.execute(sc);
+            }
+        }
+    }
 }

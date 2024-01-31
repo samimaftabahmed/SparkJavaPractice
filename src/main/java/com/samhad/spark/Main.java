@@ -1,19 +1,10 @@
 package com.samhad.spark;
 
-import com.samhad.spark.common.SparkTask;
-import com.samhad.spark.module1_basics.lesson_1.Introduction;
-import com.samhad.spark.module1_basics.lesson_2.PairRDDsAndOperations;
-import com.samhad.spark.module1_basics.lesson_3.MapsAndFilters;
-import com.samhad.spark.module1_basics.lesson_4.MiscellaneousPractice;
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ScanResult;
+import com.samhad.spark.common.Utility;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.InvocationTargetException;
 
 public class Main {
 
@@ -24,41 +15,13 @@ public class Main {
         JavaSparkContext sc = null;
         try {
             sc = new JavaSparkContext(conf);
-//            callManually(sc);
-            callWithClassGraph(sc);
+            Utility.callWithClassGraph(sc, Main.class.getPackageName());
         } catch (Exception e) {
             LOGGER.error("Exception caught during execution: ", e);
         } finally {
             LOGGER.info("Execution completed. Closing Spark Context.");
             if (sc != null)
                 sc.close();
-        }
-    }
-
-    /**
-     * Creating instances and call manually
-     * @param sc - the Spark Context
-     */
-    private static void callManually(JavaSparkContext sc) {
-        LOGGER.info("Instantiating and calling manually.");
-        new Introduction().execute(sc); // Lesson_1
-        new PairRDDsAndOperations().execute(sc); // Lesson_2
-        new MapsAndFilters().execute(sc); // Lesson_3
-        new MiscellaneousPractice().execute(sc); // Lesson_4
-    }
-
-    /**
-     * Creating instances and calling with Class Graph
-     * @param sc - the Spark Context
-     */
-    private static void callWithClassGraph(JavaSparkContext sc) throws NoSuchMethodException, InvocationTargetException,
-            InstantiationException, IllegalAccessException {
-        LOGGER.info("Instantiating all implementations with Class Graph");
-        try (ScanResult scanResult = new ClassGraph().enableAllInfo().acceptPackages(Main.class.getPackageName()).scan()) {
-            for (ClassInfo ci : scanResult.getClassesImplementing(SparkTask.class.getName())) {
-                SparkTask sparkTask = (SparkTask) ci.loadClass().getDeclaredConstructor().newInstance();
-                sparkTask.execute(sc);
-            }
         }
     }
 }
