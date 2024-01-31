@@ -31,7 +31,7 @@ public class Joins implements SparkTask {
             return split[1] + "," + split[3];
         }).collect(Collectors.toList()); // mutable list
 
-        // the following added values will be missing out from inner-joined pair RDD
+        // the following added values will be missing out from inner-joined and right-outer-joined pair RDD
         nameSalaryData.add("Bruce,\"$500000\"");
         nameSalaryData.add("John,\"$70000\"");
         nameSalaryData.add("Tony,\"$500000\"");
@@ -74,9 +74,9 @@ public class Joins implements SparkTask {
         JavaPairRDD<String, Tuple2<Optional<String>, String>> rightOuterJoinPairRDD = nameSalaryPairRDD.rightOuterJoin(nameStatusPairRDD);
         rightOuterJoinPairRDD.foreach(jpr -> {
             String name = jpr._1();
-            Optional<String> optionalStatus = jpr._2()._1();
             String status = jpr._2()._2();
-            String salary = optionalStatus.orElse("<UNKNOWN>");
+            Optional<String> optionalSalary = jpr._2()._1();
+            String salary = optionalSalary.orElse("<UNKNOWN>");
             LOGGER.info("Name: {}, Salary: {}, Status: {}", name, status, salary);
         });
     }
