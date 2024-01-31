@@ -96,5 +96,14 @@ public class Joins implements SparkTask {
             String salary = optionalSalary.orElse("<UNKNOWN>");
             LOGGER.info("Name: {}, Salary: {}, Status: {}", name, salary, status);
         });
+
+        JavaRDD<String> take5RDD = sc.parallelize(nameSalaryRDD.take(5));
+        JavaRDD<String> take2RDD = sc.parallelize(nameStatusRDD.take(2));
+
+        LOGGER.info("\n\n*** CROSS JOIN / CARTESIAN PRODUCT : take2 with take5 ***\n");
+        JavaPairRDD<String, String> cartesianRDD = take2RDD.cartesian(take5RDD);
+        cartesianRDD.foreach(jpr -> {
+            LOGGER.info("{} --- {}", jpr._1(), jpr._2());
+        });
     }
 }
