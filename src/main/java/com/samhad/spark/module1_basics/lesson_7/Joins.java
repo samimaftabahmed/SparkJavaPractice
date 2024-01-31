@@ -4,11 +4,13 @@ import com.samhad.spark.common.SparkTask;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Joins implements SparkTask {
 
@@ -22,12 +24,16 @@ public class Joins implements SparkTask {
         List<String> nameStatusData = data.stream().map(s -> {
             String[] split = s.split(",");
             return split[1] + "," + split[2];
-        }).toList();
+        }).toList(); // immutable List
 
         List<String> nameSalaryData = data.stream().map(s -> {
             String[] split = s.split(",");
             return split[1] + "," + split[3];
-        }).toList();
+        }).collect(Collectors.toList()); // mutable list
+
+        // the following added values will be missing out from inner-joined pair RDD
+        nameSalaryData.add("Bruce,\"$500000\"");
+        nameSalaryData.add("John,\"$70000\"");
 
         JavaRDD<String> nameStatusRDD = sc.parallelize(nameStatusData);
         JavaRDD<String> nameSalaryRDD = sc.parallelize(nameSalaryData);
@@ -49,6 +55,15 @@ public class Joins implements SparkTask {
         JavaPairRDD<String, Tuple2<String, String>> joinedPairRDD = nameSalaryPairRDD.join(nameStatusPairRDD);
         joinedPairRDD.foreach(jpr -> {
             LOGGER.info("Name: {}, Salary: {}, Status: {}", jpr._1(), jpr._2()._1(), jpr._2()._2());
+        });
+
+        JavaPairRDD<String, Tuple2<String, Optional<String>>> leftOuterJoinPairRDD = nameSalaryPairRDD.leftOuterJoin(nameStatusPairRDD);
+        leftOuterJoinPairRDD.foreach(jpr -> {
+            String name = jpr._1();
+            String salary = jpr._2()._1();
+            Optional<String> optionalStatus = jpr._2()._2();
+            String status = optionalStatus.orElse("<UNKNOWN>");
+            LOGGER.info("Name: {}, Salary: {}, Status: {}", name, salary, status);
         });
     }
 }
