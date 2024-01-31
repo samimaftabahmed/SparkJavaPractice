@@ -34,6 +34,8 @@ public class Joins implements SparkTask {
         // the following added values will be missing out from inner-joined pair RDD
         nameSalaryData.add("Bruce,\"$500000\"");
         nameSalaryData.add("John,\"$70000\"");
+        nameSalaryData.add("Tony,\"$500000\"");
+        nameSalaryData.add("Shami,\"$65000\"");
 
         JavaRDD<String> nameStatusRDD = sc.parallelize(nameStatusData);
         JavaRDD<String> nameSalaryRDD = sc.parallelize(nameSalaryData);
@@ -52,11 +54,13 @@ public class Joins implements SparkTask {
             return new Tuple2<>(name, status);
         });
 
+        LOGGER.info("\n\n*** INNER JOIN : nameSalary with nameStatus ***\n");
         JavaPairRDD<String, Tuple2<String, String>> joinedPairRDD = nameSalaryPairRDD.join(nameStatusPairRDD);
         joinedPairRDD.foreach(jpr -> {
             LOGGER.info("Name: {}, Salary: {}, Status: {}", jpr._1(), jpr._2()._1(), jpr._2()._2());
         });
 
+        LOGGER.info("\n\n*** LEFT OUTER JOIN : nameSalary with nameStatus ***\n");
         JavaPairRDD<String, Tuple2<String, Optional<String>>> leftOuterJoinPairRDD = nameSalaryPairRDD.leftOuterJoin(nameStatusPairRDD);
         leftOuterJoinPairRDD.foreach(jpr -> {
             String name = jpr._1();
@@ -64,6 +68,16 @@ public class Joins implements SparkTask {
             Optional<String> optionalStatus = jpr._2()._2();
             String status = optionalStatus.orElse("<UNKNOWN>");
             LOGGER.info("Name: {}, Salary: {}, Status: {}", name, salary, status);
+        });
+
+        LOGGER.info("\n\n*** RIGHT OUTER JOIN : nameSalary with nameStatus ***\n");
+        JavaPairRDD<String, Tuple2<Optional<String>, String>> rightOuterJoinPairRDD = nameSalaryPairRDD.rightOuterJoin(nameStatusPairRDD);
+        rightOuterJoinPairRDD.foreach(jpr -> {
+            String name = jpr._1();
+            Optional<String> optionalStatus = jpr._2()._1();
+            String status = jpr._2()._2();
+            String salary = optionalStatus.orElse("<UNKNOWN>");
+            LOGGER.info("Name: {}, Salary: {}, Status: {}", name, status, salary);
         });
     }
 }
