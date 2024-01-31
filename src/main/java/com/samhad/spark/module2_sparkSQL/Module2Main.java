@@ -6,6 +6,9 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Executes SparkTasks that are in the "com.samhad.spark.module2_sparkSQL" package
+ */
 public class Module2Main {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Module2Main.class);
