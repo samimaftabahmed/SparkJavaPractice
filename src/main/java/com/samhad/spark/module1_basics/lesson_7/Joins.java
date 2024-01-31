@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
+import java.util.List;
+
 public class Joins implements SparkTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Joins.class);
@@ -15,26 +17,38 @@ public class Joins implements SparkTask {
     @Override
     public void execute(JavaSparkContext sc) {
         LOGGER.info("\n---------------------------------------------------------");
-        JavaRDD<String> rdd = sc.textFile("src/main/resources/dataset/salary.csv").cache();
-        rdd = rdd.filter(s -> !s.equals("Last Name,First Name,Status,Salary"));
-
-        JavaPairRDD<String, String> firstNameSalaryPairRDD = rdd.mapToPair(s -> {
+        List<String> data = sc.textFile("src/main/resources/dataset/salary.csv").collect();
+        data = data.stream().filter(s -> !s.equals("Last Name,First Name,Status,Salary")).toList();
+        List<String> nameStatusData = data.stream().map(s -> {
             String[] split = s.split(",");
-            String firstname = split[1];
-            String salary = split[3].split("\"")[1].trim();
-            return new Tuple2<>(firstname, salary);
+            return split[1] + "," + split[2];
+        }).toList();
+
+        List<String> nameSalaryData = data.stream().map(s -> {
+            String[] split = s.split(",");
+            return split[1] + "," + split[3];
+        }).toList();
+
+        JavaRDD<String> nameStatusRDD = sc.parallelize(nameStatusData);
+        JavaRDD<String> nameSalaryRDD = sc.parallelize(nameSalaryData);
+
+        JavaPairRDD<String, String> nameSalaryPairRDD = nameSalaryRDD.mapToPair(s -> {
+            String[] split = s.split(",");
+            String name = split[0];
+            String salary = split[1].split("\"")[1].trim();
+            return new Tuple2<>(name, salary);
         });
 
-        JavaPairRDD<String, String> firstNameStatusPairRDD = rdd.mapToPair(s -> {
+        JavaPairRDD<String, String> nameStatusPairRDD = nameStatusRDD.mapToPair(s -> {
             String[] split = s.split(",");
-            String firstname = split[1];
-            String status = split[2];
-            return new Tuple2<>(firstname, status);
+            String name = split[0];
+            String status = split[1];
+            return new Tuple2<>(name, status);
         });
 
-        JavaPairRDD<String, Tuple2<String, String>> joinedPairRDD = firstNameSalaryPairRDD.join(firstNameStatusPairRDD);
+        JavaPairRDD<String, Tuple2<String, String>> joinedPairRDD = nameSalaryPairRDD.join(nameStatusPairRDD);
         joinedPairRDD.foreach(jpr -> {
-            LOGGER.info("Firstname: {}, Salary: {}, Status: {}", jpr._1(), jpr._2()._1(), jpr._2()._2());
+            LOGGER.info("Name: {}, Salary: {}, Status: {}", jpr._1(), jpr._2()._1(), jpr._2()._2());
         });
     }
 }
