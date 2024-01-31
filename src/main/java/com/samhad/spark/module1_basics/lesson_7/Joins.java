@@ -24,7 +24,13 @@ public class Joins implements SparkTask {
         List<String> nameStatusData = data.stream().map(s -> {
             String[] split = s.split(",");
             return split[1] + "," + split[2];
-        }).toList(); // immutable List
+        }).collect(Collectors.toList());
+
+        // the following added values will be missing out from inner-joined and left-outer-joined pair RDD
+        nameStatusData.add("Nehra,Full Time");
+        nameStatusData.add("Shami,Full Time");
+        nameStatusData.add("Brett,Full Time");
+        nameStatusData.add("Shoaib,Full Time");
 
         List<String> nameSalaryData = data.stream().map(s -> {
             String[] split = s.split(",");
@@ -35,7 +41,7 @@ public class Joins implements SparkTask {
         nameSalaryData.add("Bruce,\"$500000\"");
         nameSalaryData.add("John,\"$70000\"");
         nameSalaryData.add("Tony,\"$500000\"");
-        nameSalaryData.add("Shami,\"$65000\"");
+        nameSalaryData.add("Jindal,\"$65000\"");
 
         JavaRDD<String> nameStatusRDD = sc.parallelize(nameStatusData);
         JavaRDD<String> nameSalaryRDD = sc.parallelize(nameSalaryData);
@@ -77,7 +83,18 @@ public class Joins implements SparkTask {
             String status = jpr._2()._2();
             Optional<String> optionalSalary = jpr._2()._1();
             String salary = optionalSalary.orElse("<UNKNOWN>");
-            LOGGER.info("Name: {}, Salary: {}, Status: {}", name, status, salary);
+            LOGGER.info("Name: {}, Salary: {}, Status: {}", name, salary, status);
+        });
+
+        LOGGER.info("\n\n*** FULL OUTER JOIN : nameSalary with nameStatus ***\n");
+        JavaPairRDD<String, Tuple2<Optional<String>, Optional<String>>> fullOuterJoinPairRDD = nameSalaryPairRDD.fullOuterJoin(nameStatusPairRDD);
+        fullOuterJoinPairRDD.foreach(jpr -> {
+            String name = jpr._1();
+            Optional<String> optionalStatus = jpr._2()._2();
+            String status = optionalStatus.orElse("<UNKNOWN>");
+            Optional<String> optionalSalary = jpr._2()._1();
+            String salary = optionalSalary.orElse("<UNKNOWN>");
+            LOGGER.info("Name: {}, Salary: {}, Status: {}", name, salary, status);
         });
     }
 }
