@@ -64,7 +64,7 @@ public class Utility {
      */
     public static void callWithClassGraph(JavaSparkContext sc, String packageName) throws NoSuchMethodException, InvocationTargetException,
             InstantiationException, IllegalAccessException {
-        LOGGER.info("Instantiating all implementations with Class Graph");
+        LOGGER.info("Instantiating all implementations with Class Graph for package: \"{}\"", packageName);
         try (ScanResult scanResult = new ClassGraph().enableAllInfo().acceptPackages(packageName).scan()) {
             for (ClassInfo ci : scanResult.getClassesImplementing(SparkTask.class.getName())) {
                 SparkTask sparkTask = (SparkTask) ci.loadClass().getDeclaredConstructor().newInstance();
