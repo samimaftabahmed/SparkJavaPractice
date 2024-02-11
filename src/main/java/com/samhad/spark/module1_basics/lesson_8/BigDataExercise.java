@@ -115,15 +115,13 @@ public class BigDataExercise implements SparkTask, Serializable {
      * @return Point - Integer.
      */
     private int getPoints(float percentage) {
-        int points;
+        int points = 0;
         if (percentage > 90) {
             points = 10;
         } else if (percentage > 50 && percentage < 90) {
             points = 4;
         } else if (percentage > 25 && percentage < 50) {
             points = 2;
-        } else {
-            points = 0;
         }
 
         return points;
@@ -135,6 +133,7 @@ public class BigDataExercise implements SparkTask, Serializable {
      * @param pairRDD     - The JavaPairRDD whose elements needs to be printed.
      * @param pairRddName - The JavaPairRDD name.
      */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void viewPairRDD(JavaPairRDD pairRDD, String pairRddName) {
         LOGGER.info("");
         pairRDD.foreach(o -> LOGGER.info("{} - {}", pairRddName, o));
