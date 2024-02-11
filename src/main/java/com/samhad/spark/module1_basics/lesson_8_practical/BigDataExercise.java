@@ -1,4 +1,4 @@
-package com.samhad.spark.module1_basics.lesson_8;
+package com.samhad.spark.module1_basics.lesson_8_practical;
 
 import com.samhad.spark.common.SparkTask;
 import org.apache.spark.api.java.JavaPairRDD;
