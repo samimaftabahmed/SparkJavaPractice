@@ -4,6 +4,7 @@ import com.samhad.spark.common.SparkTask;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
@@ -13,8 +14,8 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Big Data Exercise on datasets to find out the popularity of various courses.
- * Section: 13.
+ * Big Data Exercise on datasets to find out the popularity of various courses with minor performance optimization codes.
+ * Section: 13 and 14.
  */
 public class BigDataExercise implements SparkTask, Serializable {
 
@@ -32,7 +33,7 @@ public class BigDataExercise implements SparkTask, Serializable {
             String chapter = split[0];
             String course = split[1];
             return new Tuple2<>(chapter, course); // (96,1)
-        });
+        }).cache(); // keeping it in cache as this RDD is used later on in the operations.
 
         JavaPairRDD<String, String> chapterUserPair = rdd2.mapToPair(s -> {
             String[] split = s.split(",");
@@ -90,7 +91,12 @@ public class BigDataExercise implements SparkTask, Serializable {
             return new Tuple2<>(course, title);
         });
 
+        courseTitlePair = courseTitlePair.cache(); // keeps the RDD on memory.
+        courseTotalScorePair = courseTotalScorePair.persist(StorageLevel.MEMORY_AND_DISK()); // keeps the RDD on MEMORY or DISK.
+
         JavaPairRDD<String, Tuple2<String, Integer>> courseTitleTotalScoreJoinPair = courseTitlePair.join(courseTotalScorePair);
+
+        courseTitleTotalScoreJoinPair = courseTitleTotalScoreJoinPair.persist(StorageLevel.OFF_HEAP()); // keeps the RDD on HEAP or MEMORY or DISK.
 
         viewPairRDD(courseTitlePair, "Course-Title Pair");
         viewPairRDD(courseTotalScorePair, "Course-TotalScore Pair");
