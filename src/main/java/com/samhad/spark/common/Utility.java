@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.Enumeration;
+import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -71,5 +72,14 @@ public class Utility {
                 sparkTask.execute(sc);
             }
         }
+    }
+
+    /**
+     * A hack to prevent the spark app from closing, as it gives us the window to check the Spark UI
+     * that is accessible on port 4040. When running on local machine, check the spark UI here
+     * <a href="http://localhost:4040">http://localhost:4040</a>
+     */
+    public static void pauseSparkApp() {
+        new Scanner(System.in).nextLine();
     }
 }

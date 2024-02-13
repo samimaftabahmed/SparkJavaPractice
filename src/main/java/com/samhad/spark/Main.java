@@ -16,6 +16,7 @@ public class Main {
         try {
             sc = new JavaSparkContext(conf);
             Utility.callWithClassGraph(sc, Main.class.getPackageName());
+//            Utility.pauseSparkApp();
         } catch (Exception e) {
             LOGGER.error("Exception caught during execution: ", e);
         } finally {

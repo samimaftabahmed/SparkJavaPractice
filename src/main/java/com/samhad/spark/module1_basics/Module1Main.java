@@ -17,6 +17,7 @@ public class Module1Main {
         SparkConf conf = new SparkConf().setAppName("LearningSpark").setMaster("local[*]");
         try (JavaSparkContext sc = new JavaSparkContext(conf)) {
             Utility.callWithClassGraph(sc, Module1Main.class.getPackageName());
+//            Utility.pauseSparkApp();
         } catch (Exception e) {
             LOGGER.error("Module1 Main:: Exception caught during execution: ", e);
         }
