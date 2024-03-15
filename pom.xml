@@ -12,7 +12,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spark-version>3.5.0</spark-version>
+        <spark-version>3.5.1</spark-version>
         <hadoop-client>3.3.6</hadoop-client>
     </properties>
 
@@ -45,7 +45,7 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_2.13</artifactId>
             <version>${spark-version}</version>
-            <scope>provided</scope>
+            <!--            <scope>provided</scope>-->
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>
@@ -59,7 +59,7 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
             <version>${hadoop-client}</version>
-            <scope>test</scope>
+            <!--            <scope>test</scope>-->
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>
