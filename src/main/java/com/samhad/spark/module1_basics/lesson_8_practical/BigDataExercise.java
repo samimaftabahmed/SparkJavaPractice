@@ -4,6 +4,7 @@ import com.samhad.spark.common.SparkTask;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,9 @@ public class BigDataExercise implements SparkTask, Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(BigDataExercise.class);
 
     @Override
-    public void execute(JavaSparkContext sc) {
-        LOGGER.info("\n\n---------------------------");
+    public void execute(SparkSession spark) {
+        JavaSparkContext sc = JavaSparkContext.fromSparkContext(spark.sparkContext());
+
         JavaRDD<String> rdd1 = sc.textFile("src/main/resources/exercise/chapter-course-data.txt").cache();
         JavaRDD<String> rdd2 = sc.textFile("src/main/resources/exercise/user-chapter-data.txt").cache();
         JavaRDD<String> rdd3 = sc.textFile("src/main/resources/exercise/course-title-data.txt").cache();

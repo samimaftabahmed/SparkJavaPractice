@@ -4,7 +4,7 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
 import org.apache.commons.io.IOUtils;
-import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,15 +61,19 @@ public class Utility {
 
     /**
      * Creating instances and calling with Class Graph
-     * @param sc - the Spark Context
+     * @param initializerVO - the Initializer VO
      */
-    public static void callWithClassGraph(JavaSparkContext sc, String packageName) throws NoSuchMethodException, InvocationTargetException,
-            InstantiationException, IllegalAccessException {
+    public static void callWithClassGraph(InitializerVO initializerVO) throws NoSuchMethodException,
+            InvocationTargetException, InstantiationException, IllegalAccessException {
+
+        SparkSession session = initializerVO.getSession();
+        String packageName = initializerVO.getPackageName();
         LOGGER.info("Instantiating all implementations with Class Graph for package: \"{}\"", packageName);
+
         try (ScanResult scanResult = new ClassGraph().enableAllInfo().acceptPackages(packageName).scan()) {
-            for (ClassInfo ci : scanResult.getClassesImplementing(SparkTask.class.getName())) {
+            for (ClassInfo ci : scanResult.getClassesImplementing(SparkTask.class)) {
                 SparkTask sparkTask = (SparkTask) ci.loadClass().getDeclaredConstructor().newInstance();
-                sparkTask.execute(sc);
+                sparkTask.execute(session);
             }
         }
     }
@@ -81,5 +85,19 @@ public class Utility {
      */
     public static void pauseSparkApp() {
         new Scanner(System.in).nextLine();
+    }
+
+    /**
+     * Creates a SparkSession.
+     *
+     * @param appName The name of the Session app.
+     */
+    public static SparkSession getSession(String appName) {
+        return SparkSession.builder().appName(appName)
+                .master("local[*]")
+                .config("spark.storage.memoryFraction","1")
+                .config("rdd.compression", true)
+                .config("spark.sql.warehouse.dir", "file:///p:/")
+                .getOrCreate();
     }
 }

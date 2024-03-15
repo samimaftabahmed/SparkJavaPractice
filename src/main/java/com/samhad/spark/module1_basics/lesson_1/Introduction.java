@@ -3,6 +3,7 @@ package com.samhad.spark.module1_basics.lesson_1;
 import com.samhad.spark.common.SparkTask;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
@@ -19,8 +20,9 @@ public class Introduction implements SparkTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(Introduction.class);
 
     @Override
-    public void execute(JavaSparkContext sc) {
-        LOGGER.info("\n---------------------------------------------------------");
+    public void execute(SparkSession spark) {
+        JavaSparkContext sc = JavaSparkContext.fromSparkContext(spark.sparkContext());
+
         List<Integer> inputData = Arrays.asList(36, 49, 100, 121);
         JavaRDD<Integer> myRdd = sc.parallelize(inputData);
         myRdd.foreach(integer -> LOGGER.info("myRdd: {}", integer));
@@ -54,7 +56,6 @@ public class Introduction implements SparkTask {
         LOGGER.info("Tuple forEach");
         JavaRDD<Tuple2<Integer, Double>> tuple2JavaRDD = myRdd.map(integer -> new Tuple2<>(integer, Math.sqrt(integer)));
         tuple2JavaRDD.foreach(tuple2 -> LOGGER.info("{} is square root of {}", tuple2._1(), tuple2._2().intValue()));
-
     }
 
 }

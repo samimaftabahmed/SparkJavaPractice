@@ -4,6 +4,7 @@ import com.samhad.spark.common.SparkTask;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
@@ -21,8 +22,9 @@ public class WordCount implements SparkTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(WordCount.class);
 
     @Override
-    public void execute(JavaSparkContext sc) {
-        LOGGER.info("\n---------------------------------------------------------");
+    public void execute(SparkSession spark) {
+        JavaSparkContext sc = JavaSparkContext.fromSparkContext(spark.sparkContext());
+
         JavaRDD<String> rdd = sc.textFile("src/main/resources/dataset/sample.srt").cache();
         rdd = rdd
                 .map(s -> s.replaceAll("[^a-zA-Z\\s]", "").trim())

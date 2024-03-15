@@ -4,6 +4,7 @@ import com.samhad.spark.common.SparkTask;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +20,9 @@ public class MapsAndFilters implements SparkTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(MapsAndFilters.class);
 
     @Override
-    public void execute(JavaSparkContext sc) {
-        LOGGER.info("\n---------------------------------------------------------");
+    public void execute(SparkSession spark) {
+        JavaSparkContext sc = JavaSparkContext.fromSparkContext(spark.sparkContext());
+
         List<String> inputData = Arrays.asList(
                 "WARN: Tuesday 4 September 0405",
                 "ERROR: Tuesday 4 September 0408",

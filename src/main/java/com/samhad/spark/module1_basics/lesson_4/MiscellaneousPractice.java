@@ -2,6 +2,7 @@ package com.samhad.spark.module1_basics.lesson_4;
 
 import com.samhad.spark.common.SparkTask;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +18,9 @@ public class MiscellaneousPractice implements SparkTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(MiscellaneousPractice.class);
 
     @Override
-    public void execute(JavaSparkContext sc) {
-        LOGGER.info("\n---------------------------------------------------------");
+    public void execute(SparkSession spark) {
+        JavaSparkContext sc = JavaSparkContext.fromSparkContext(spark.sparkContext());
+
         List<Integer> integerList = Arrays.asList(1, 55, 2, 65, 7, 3);
         LOGGER.info("The Integer List: {}", integerList);
 
