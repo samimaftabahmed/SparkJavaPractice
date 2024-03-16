@@ -97,7 +97,7 @@ public class Utility {
                 .master("local[*]")
                 .config("spark.storage.memoryFraction","1")
                 .config("rdd.compression", true)
-                .config("spark.sql.warehouse.dir", "file:///p:/")
+                .config("spark.sql.warehouse.dir", "file:///p:/spark_sql/")
                 .getOrCreate();
     }
 }
