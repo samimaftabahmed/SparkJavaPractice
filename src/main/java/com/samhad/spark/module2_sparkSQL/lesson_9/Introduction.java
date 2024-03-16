@@ -13,10 +13,17 @@ public class Introduction implements SparkTask {
 
     @Override
     public void execute(SparkSession spark) {
+//        student_id,exam_center_id,subject,year,quarter,score,grade
         Dataset<Row> dataset = spark.read().option("header", true)
                 .csv("src/main/resources/dataset/students.csv");
         dataset.show(20);
         long count = dataset.count();
         LOGGER.info("Data Count: {}", count);
+
+        Row first = dataset.first();
+        String subject = first.getAs("subject").toString();
+        String year = first.get(3).toString();
+        LOGGER.info("subject: {}", subject);
+        LOGGER.info("year: {}", year);
     }
 }
