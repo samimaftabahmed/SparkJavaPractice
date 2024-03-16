@@ -27,9 +27,9 @@ public class Filters implements SparkTask {
 
         // filtering records using Lambdas
         Dataset<Row> filter2 = dataset.filter((Row row) ->
-                row.getAs("subject").equals("Math") &&
-                        row.getAs("grade").equals("A+"));
-        // greater than equal to is not possible using this API.
+                        row.getAs("subject").equals("Math") &&
+                        row.getAs("grade").equals("A+") &&
+                        (Integer.parseInt(row.getAs("score"))) >= 93);
         filter2.show(5);
 
         // filtering records using a similar Spring's Criteria-like API.
