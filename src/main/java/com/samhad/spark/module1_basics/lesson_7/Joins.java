@@ -23,6 +23,7 @@ public class Joins implements SparkTask {
 
     @Override
     public void execute(SparkSession spark) {
+        logFileStart(LOGGER, this.getClass());
         JavaSparkContext sc = JavaSparkContext.fromSparkContext(spark.sparkContext());
 
         List<String> data = sc.textFile("src/main/resources/dataset/salary.csv").collect();

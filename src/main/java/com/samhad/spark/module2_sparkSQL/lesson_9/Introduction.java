@@ -13,6 +13,7 @@ public class Introduction implements SparkTask {
 
     @Override
     public void execute(SparkSession spark) {
+        logFileStart(LOGGER, this.getClass());
 //        student_id,exam_center_id,subject,year,quarter,score,grade
         Dataset<Row> dataset = spark.read().option("header", true)
                 .csv("src/main/resources/dataset/students.csv");

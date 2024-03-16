@@ -19,6 +19,7 @@ public class MiscellaneousPractice implements SparkTask {
 
     @Override
     public void execute(SparkSession spark) {
+        logFileStart(LOGGER, this.getClass());
         JavaSparkContext sc = JavaSparkContext.fromSparkContext(spark.sparkContext());
 
         List<Integer> integerList = Arrays.asList(1, 55, 2, 65, 7, 3);

@@ -23,6 +23,7 @@ public class WordCount implements SparkTask {
 
     @Override
     public void execute(SparkSession spark) {
+        logFileStart(LOGGER, this.getClass());
         JavaSparkContext sc = JavaSparkContext.fromSparkContext(spark.sparkContext());
 
         JavaRDD<String> rdd = sc.textFile("src/main/resources/dataset/sample.srt").cache();

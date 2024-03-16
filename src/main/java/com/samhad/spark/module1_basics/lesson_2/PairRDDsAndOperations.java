@@ -22,6 +22,7 @@ public class PairRDDsAndOperations implements SparkTask {
 
     @Override
     public void execute(SparkSession spark) {
+        logFileStart(LOGGER, this.getClass());
         JavaSparkContext sc = JavaSparkContext.fromSparkContext(spark.sparkContext());
 
         List<String> inputData = Arrays.asList(

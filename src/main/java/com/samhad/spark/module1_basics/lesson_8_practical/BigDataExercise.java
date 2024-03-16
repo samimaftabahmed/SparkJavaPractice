@@ -24,6 +24,7 @@ public class BigDataExercise implements SparkTask, Serializable {
 
     @Override
     public void execute(SparkSession spark) {
+        logFileStart(LOGGER, this.getClass());
         JavaSparkContext sc = JavaSparkContext.fromSparkContext(spark.sparkContext());
 
         JavaRDD<String> rdd1 = sc.textFile("src/main/resources/exercise/chapter-course-data.txt").cache();

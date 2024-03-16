@@ -21,6 +21,7 @@ public class Introduction implements SparkTask {
 
     @Override
     public void execute(SparkSession spark) {
+        logFileStart(LOGGER, this.getClass());
         JavaSparkContext sc = JavaSparkContext.fromSparkContext(spark.sparkContext());
 
         List<Integer> inputData = Arrays.asList(36, 49, 100, 121);
