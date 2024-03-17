@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Creating in-memory DataFrame programmatically, using built-in Spark SQL functions, Grouping, Ordering.
+ * Section: 19 to 23
+ */
 public class InMemoryDataGroupingOrdering implements SparkTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryDataGroupingOrdering.class);

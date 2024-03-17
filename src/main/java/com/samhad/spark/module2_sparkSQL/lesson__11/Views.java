@@ -8,6 +8,10 @@ import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Creating views for a dataset in order to query using a full-fledged SQL query.
+ * Section: 18
+ */
 public class Views implements SparkTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Views.class);

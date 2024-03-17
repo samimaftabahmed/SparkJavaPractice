@@ -7,6 +7,10 @@ import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Getting started with the basics of Spark SQL.
+ * Section: 16, 17
+ */
 public class Introduction implements SparkTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Introduction.class);

@@ -10,6 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import static org.apache.spark.sql.functions.col;
 
+/**
+ * Using different types of Filters.
+ * Section: 17
+ */
 public class Filters implements SparkTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Filters.class);
