@@ -14,8 +14,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Enumeration;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -99,5 +103,28 @@ public class Utility {
                 .config("rdd.compression", true)
                 .config("spark.sql.warehouse.dir", "file:///p:/spark_sql/")
                 .getOrCreate();
+    }
+
+    /**
+     * Generates Random Instant of time.
+     */
+    public static Instant getRandomInstant(Instant startInclusive, Instant endExclusive) {
+        long startSeconds = startInclusive.getEpochSecond();
+        long endSeconds = endExclusive.getEpochSecond();
+        long random = ThreadLocalRandom.current()
+                .nextLong(startSeconds, endSeconds);
+
+        return Instant.ofEpochSecond(random);
+    }
+
+    /**
+     * Generates Random LocalDateTime.
+     */
+    public static LocalDateTime getRandomDateTime(LocalDateTime startInclusive, LocalDateTime endExclusive) {
+        Instant startEpochDay = startInclusive.toInstant(ZoneOffset.UTC);
+        Instant endEpochDay = endExclusive.toInstant(ZoneOffset.UTC);
+        Instant between = getRandomInstant(startEpochDay, endEpochDay);
+
+        return LocalDateTime.ofInstant(between, ZoneOffset.UTC);
     }
 }
