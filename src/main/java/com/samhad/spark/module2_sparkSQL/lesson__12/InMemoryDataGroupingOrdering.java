@@ -1,6 +1,7 @@
 package com.samhad.spark.module2_sparkSQL.lesson__12;
 
 import com.samhad.spark.common.SparkTask;
+import com.samhad.spark.common.Utility;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -30,7 +31,7 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
     public void execute(SparkSession spark) {
         logFileStart(LOGGER, this.getClass());
 
-        List<Row> inMemoryRows = generateRows();
+        List<Row> inMemoryRows = generateRows(1000000, 2023);
         StructField[] fields = {
                 new StructField("level", DataTypes.StringType, false, Metadata.empty()),
                 new StructField("datetime", DataTypes.StringType, false, Metadata.empty())
@@ -45,32 +46,45 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
                 spark.sql("select level, count(level) as count from log_table group by level order by count desc");
         resultDataset.show();
 
-        // Check https://spark.apache.org/docs/3.5.1/api/sql/ for more build-in SparkSQL functions.
+        // Check https://spark.apache.org/docs/3.5.1/api/sql/ for more built-in SparkSQL functions.
         resultDataset =
                 spark.sql("select level, count(level) as count, collect_list(datetime) as dateTimes " +
                         "from log_table group by level");
         // group by 'key' negatively impacts performance of the JVM, just like groupByKey() in RDD
         resultDataset.show();
+//        resultDataset.show(2, false);
 
         List<Row> rows = resultDataset.collectAsList();
-        printRows(rows);
-
+        printRows(rows, 10);
     }
 
     private List<Row> generateRows() {
-        List<Row> rows = new ArrayList<>();
+        return generateRows(10, LocalDateTime.now().getYear());
+    }
+
+    private List<Row> generateRows(int recordCount, int startYear) {
+        System.out.println("Creating Data start: " + LocalDateTime.now());
+        List<Row> rows = new ArrayList<>(recordCount);
         final String[] logLevel = {"WARN", "INFO", "DEBUG", "ERROR"};
         DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < recordCount; i++) {
             int index = ThreadLocalRandom.current().nextInt(0, 3);
-            Row row = RowFactory.create(logLevel[index], LocalDateTime.now().format(pattern));
+            LocalDateTime randomDateTime = Utility.getRandomDateTime(
+                    LocalDateTime.of(startYear, 1, 1, 0, 0),
+                    LocalDateTime.now());
+
+            Row row = RowFactory.create(logLevel[index], randomDateTime.format(pattern));
             rows.add(row);
         }
+
+        System.out.println("Data Creation completed: " + LocalDateTime.now());
         return rows;
     }
 
-    private void printRows(List<Row> rows) {
-        for (Row row : rows) {
+    private void printRows(List<Row> rows, int numberOfRows) {
+        int size = Math.min(numberOfRows, rows.size());
+        for (int i = 0; i < size; i++) {
+            Row row = rows.get(i);
             List<String> dateTimes = row.getList(2);
             String level = row.getAs("level");
             String count = row.getAs("count").toString();
