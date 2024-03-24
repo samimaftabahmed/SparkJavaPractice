@@ -66,9 +66,10 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
         System.out.println("Creating Data start: " + LocalDateTime.now());
         List<Row> rows = new ArrayList<>(recordCount);
         final String[] logLevel = {"WARN", "INFO", "DEBUG", "ERROR"};
+        int logLevelArraySize = logLevel.length;
         DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         for (int i = 0; i < recordCount; i++) {
-            int index = ThreadLocalRandom.current().nextInt(0, 3);
+            int index = ThreadLocalRandom.current().nextInt(0, logLevelArraySize);
             LocalDateTime randomDateTime = Utility.getRandomDateTime(
                     LocalDateTime.of(startYear, 1, 1, 0, 0),
                     LocalDateTime.now());
@@ -89,11 +90,13 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
             String level = row.getAs("level");
             String count = row.getAs("count").toString();
             System.out.println("level: %s, count: %s".formatted(level, count));
-            for (String dateTime : dateTimes) {
+            int min = Math.min(dateTimes.size(), 10); // showing max 10 to prevent console log getting overflowed
+            for (int j = 0; j < min; j++) {
+                String dateTime = dateTimes.get(j);
                 System.out.println("dateTime: %s".formatted(dateTime));
             }
 
-            System.out.println(row.json() + "\n"); // prints the entire row in JSON format.
+//            System.out.println(row.json() + "\n"); // prints the entire row in JSON format.
         }
     }
 }
