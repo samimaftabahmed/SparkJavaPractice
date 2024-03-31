@@ -31,7 +31,7 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
     public void execute(SparkSession spark) {
         logFileStart(LOGGER, this.getClass());
 
-        List<Row> inMemoryRows = generateRows(1000000, 2023);
+        List<Row> inMemoryRows = generateRows(10000, 2023);
         StructField[] fields = {
                 new StructField("level", DataTypes.StringType, false, Metadata.empty()),
                 new StructField("datetime", DataTypes.StringType, false, Metadata.empty())
@@ -56,6 +56,19 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
 
         List<Row> rows = resultDataset.collectAsList();
         printRows(rows, 10);
+
+        // ordering the logs based on the month and level.
+        // built-ib SparkSQL functions first, date_format and cast is used.
+        // first picks out the first element from a collection.
+        // cast is used to cast to a particular datatype.
+        // date_format is used to parse the date and return us in our specified format.
+        resultDataset = spark
+                .sql("select level, date_format(datetime,'MMMM') as month, " +
+                        " cast( first( date_format(datetime,'M')) as int) as monthNum, " +
+                        "count(1) as total from log_table group by level,month order by monthNum,level")
+                .drop("monthNum");
+
+        resultDataset.show(100);
     }
 
     private List<Row> generateRows() {
@@ -65,7 +78,7 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
     private List<Row> generateRows(int recordCount, int startYear) {
         System.out.println("Creating Data start: " + LocalDateTime.now());
         List<Row> rows = new ArrayList<>(recordCount);
-        final String[] logLevel = {"WARN", "INFO", "DEBUG", "ERROR"};
+        final String[] logLevel = {"WARN", "INFO", "DEBUG", "ERROR", "TRACE"};
         int logLevelArraySize = logLevel.length;
         DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         for (int i = 0; i < recordCount; i++) {
