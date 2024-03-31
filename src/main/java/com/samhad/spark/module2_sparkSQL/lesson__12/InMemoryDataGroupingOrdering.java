@@ -13,6 +13,7 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -24,7 +25,9 @@ import static org.apache.spark.sql.functions.date_format;
 
 /**
  * Creating in-memory DataFrame programmatically, using built-in Spark SQL functions, Grouping, Ordering.
- * Section: 19 to 24
+ * Using the DataFrame API.
+ * Creating a Pivot Table.
+ * Section: 19 to 25.
  */
 public class InMemoryDataGroupingOrdering implements SparkTask {
 
@@ -48,6 +51,7 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
 
         groupingOrderingUsingSparkSQL(spark);
         groupingOrderingUsingDatasetAPI(spark, dataFrame);
+        usingPivotTable(spark, dataFrame);
     }
 
     private void groupingOrderingUsingSparkSQL(SparkSession spark) {
@@ -107,6 +111,32 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
         resultDataset.show(100);
     }
 
+    private void usingPivotTable(SparkSession spark, Dataset<Row> dataFrame) {
+        // spark creating pivot table with columns auto-detected
+        Dataset<Row> resultDataset = dataFrame
+                .select(
+                        col("level"),
+                        date_format(col("datetime"), "MMMM").alias("month"),
+                        date_format(col("datetime"), "M").alias("monthNum").cast(DataTypes.IntegerType)
+                )
+                .groupBy(col("level")).pivot("month")
+                .count();
+        resultDataset.show(100);
+
+        List<Object> monthList = getPivotColumns();
+        // spark creating pivot table with columns being user-provided. This helps in performance.
+        resultDataset = dataFrame
+                .select(
+                        col("level"),
+                        date_format(col("datetime"), "MMMM").alias("month"),
+                        date_format(col("datetime"), "M").alias("monthNum").cast(DataTypes.IntegerType)
+                )
+                .groupBy(col("level")).pivot("month", monthList)
+                .count()
+                .na().fill(0); // na() checks for null and allows us to fill the null values with a some value.
+        resultDataset.show(100);
+    }
+
     private List<Row> generateRows(int recordCount, int startYear) {
         System.out.println("Creating Data start: " + LocalDateTime.now());
         List<Row> rows = new ArrayList<>(recordCount);
@@ -143,5 +173,20 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
 
 //            System.out.println(row.json() + "\n"); // prints the entire row in JSON format.
         }
+    }
+
+    private List<Object> getPivotColumns() {
+        int totalMonths = 12;
+        List<Object> monthList = new ArrayList<>(totalMonths);
+        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("MMMM");
+        LocalDate dateTime = LocalDate.of(2024, 1, 1);
+        for (int i = 0; i < totalMonths; i++) {
+            if (i != 0) {
+                dateTime = dateTime.plusMonths(1);
+            }
+            String calendarMonth = dateTime.format(pattern);
+            monthList.add(calendarMonth);
+        }
+        return monthList;
     }
 }
