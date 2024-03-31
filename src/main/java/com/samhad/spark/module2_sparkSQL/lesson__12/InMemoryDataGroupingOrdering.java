@@ -19,9 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.apache.spark.sql.functions.col;
+import static org.apache.spark.sql.functions.date_format;
+
 /**
  * Creating in-memory DataFrame programmatically, using built-in Spark SQL functions, Grouping, Ordering.
- * Section: 19 to 23
+ * Section: 19 to 24
  */
 public class InMemoryDataGroupingOrdering implements SparkTask {
 
@@ -42,6 +45,14 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
         dataFrame.show(10);
 
         dataFrame.createOrReplaceTempView("log_table");
+
+        groupingOrderingUsingSparkSQL(spark);
+        groupingOrderingUsingDatasetAPI(spark, dataFrame);
+    }
+
+    private void groupingOrderingUsingSparkSQL(SparkSession spark) {
+        LOGGER.info("Using SparkSQL for Grouping and Ordering.");
+
         Dataset<Row> resultDataset =
                 spark.sql("select level, count(level) as count from log_table group by level order by count desc");
         resultDataset.show();
@@ -71,8 +82,29 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
         resultDataset.show(100);
     }
 
-    private List<Row> generateRows() {
-        return generateRows(10, LocalDateTime.now().getYear());
+    private void groupingOrderingUsingDatasetAPI(SparkSession spark, Dataset<Row> dataFrame) {
+        LOGGER.info("Using DataSet / DataFrame API :: select() and selectExpr(), for Grouping and Ordering.");
+
+        Dataset<Row> resultDataset = dataFrame.select("level"); // we can select the columns of the dataset.
+        resultDataset.show();
+
+        // To execute a sparkSQL built-in function selectExpr() needs to be used.
+        // Also, columns can be used with selectExpr() as well.
+        resultDataset = dataFrame.selectExpr("level", "date_format(datetime,'MMMM') as month");
+        resultDataset.show();
+
+        // selection using the Dataset API.
+        resultDataset = dataFrame
+                .select(
+                        col("level"),
+                        date_format(col("datetime"), "MMMM").alias("month"),
+                        date_format(col("datetime"), "M").alias("monthNum").cast(DataTypes.IntegerType)
+                )
+                .groupBy(col("level"), col("month"), col("monthNum"))
+                .count().withColumnRenamed("count", "total")
+                .orderBy(col("monthNum"), col("level"))
+                .drop(col("monthNum"));
+        resultDataset.show(100);
     }
 
     private List<Row> generateRows(int recordCount, int startYear) {
