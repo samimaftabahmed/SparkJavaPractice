@@ -13,7 +13,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spark-version>3.5.1</spark-version>
-        <hadoop-client>3.3.6</hadoop-client>
+        <hadoop-client>3.4.0</hadoop-client>
     </properties>
 
     <dependencies>
