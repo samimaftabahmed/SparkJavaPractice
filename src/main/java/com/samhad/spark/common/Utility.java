@@ -4,6 +4,7 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,7 @@ public class Utility {
 
     /**
      * Creating instances and calling with Class Graph
+     *
      * @param initializerVO - the Initializer VO
      */
     public static void callWithClassGraph(InitializerVO initializerVO) throws NoSuchMethodException,
@@ -97,11 +99,14 @@ public class Utility {
      * @param appName The name of the Session app.
      */
     public static SparkSession getSession(String appName) {
+        String osName = SystemUtils.OS_NAME;
+        String tempDirectory = osName.contains("Linux") ?
+                "/tmp/spark_sql/" : "file:///p:/spark_sql/";
         return SparkSession.builder().appName(appName)
                 .master("local[*]")
-                .config("spark.storage.memoryFraction","1")
+                .config("spark.storage.memoryFraction", "1")
                 .config("rdd.compression", true)
-                .config("spark.sql.warehouse.dir", "file:///p:/spark_sql/")
+                .config("spark.sql.warehouse.dir", tempDirectory)
                 .getOrCreate();
     }
 
