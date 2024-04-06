@@ -35,8 +35,14 @@ public class MiscellaneousPractice implements SparkTask {
                 .stream().toList();
         LOGGER.info("2. Take List: {}", takeList);
 
-        List<String> wordsFromFile = sc.textFile("D:\\words.txt").collect();
-        LOGGER.info("3. WordsFromFile: {}", wordsFromFile);
+        String filePath = "D:\\words.txt";
+        try {
+            // to read a local file from the Spark Job.
+            List<String> wordsFromFile = sc.textFile(filePath).collect();
+            LOGGER.info("3. WordsFromFile: {}", wordsFromFile);
+        } catch (Exception e) {
+            LOGGER.error("Cannot read file from path: {}", filePath);
+        }
 
     }
 }
