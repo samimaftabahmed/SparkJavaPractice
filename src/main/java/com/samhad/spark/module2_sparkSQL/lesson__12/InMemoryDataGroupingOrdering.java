@@ -56,11 +56,7 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
         groupingOrderingUsingSparkSQL(spark);
         groupingOrderingUsingDatasetAPI(spark, dataFrame);
         usingPivotTable(spark, dataFrame);
-
-        // using aggregate function and max
-        dataFrame.groupBy(col("level"))
-                .agg(functions.max(col("datetime")))
-                .show(); // the dataset used in lesson 9, 10 is better when used with these functions.
+        groupingAndAggregation(dataFrame);
     }
 
     private void groupingOrderingUsingSparkSQL(SparkSession spark) {
@@ -171,6 +167,22 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
         resultDataset.show(100);
     }
 
+    private void groupingAndAggregation(Dataset<Row> dataFrame) {
+        Column datetime = col("datetime");
+        Column level = col("level");
+        String maxDateTimeAlias = "Max_DateTime";
+        LOGGER.info("Grouping and Aggregation using various spark functions.");
+
+        dataFrame.groupBy(level)
+                .agg(
+                        functions.max(datetime).alias(maxDateTimeAlias),
+                        functions.min(datetime).alias("Min_DateTime"),
+                        functions.current_user(),
+                        functions.current_timestamp(),
+                        functions.md5(functions.date_format(col(maxDateTimeAlias), "hh:mm:ss"))
+                ).show(false); // the dataset used in lesson 9, 10 is better when used with these functions.
+    }
+
     private List<Row> generateRows(int recordCount, int startYear) {
         System.out.println("Creating Dummy Data start: " + LocalDateTime.now());
         List<Row> rows = new ArrayList<>(recordCount);
@@ -199,11 +211,11 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
             List<Timestamp> dateTimes = row.getList(2);
             String level = row.getAs("level");
             String count = row.getAs("count").toString();
-            System.out.println("level: %s, count: %s".formatted(level, count));
+            System.out.printf("level: %s, count: %s%n", level, count);
             int min = Math.min(dateTimes.size(), 10); // showing max 10 to prevent console log getting overflowed
             for (int j = 0; j < min; j++) {
                 Timestamp dateTime = dateTimes.get(j);
-                System.out.println("dateTime: %s".formatted(dateTime));
+                System.out.printf("dateTime: %s%n", dateTime);
             }
 
 //            System.out.println(row.json() + "\n"); // prints the entire row in JSON format.
