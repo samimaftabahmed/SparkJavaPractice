@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.zip.ZipEntry;
@@ -146,5 +150,32 @@ public class Utility {
         Dataset<Row> dataset = spark.read().option("header", true)
                 .csv("src/main/resources/dataset/students.csv");
         return dataset;
+    }
+
+    /**
+     * Generate Dummy logs with the given recordCount.
+     *
+     * @param recordCount The number of records to be generated.
+     * @param minYear     The minimum year from which the log events should be created.
+     * @return List<Row>
+     */
+    public static List<Row> generateDummyLogs(int recordCount, int minYear) {
+        System.out.println("Creating Dummy Data start: " + LocalDateTime.now());
+        List<Row> rows = new ArrayList<>(recordCount);
+        final String[] logLevel = {"WARN", "INFO", "DEBUG", "ERROR", "TRACE"};
+        int logLevelArraySize = logLevel.length;
+//        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+        for (int i = 0; i < recordCount; i++) {
+            int index = ThreadLocalRandom.current().nextInt(0, logLevelArraySize);
+            LocalDateTime randomDateTime = getRandomDateTime(
+                    LocalDateTime.of(minYear, 1, 1, 0, 0),
+                    LocalDateTime.now());
+            Timestamp timestamp = Timestamp.valueOf(randomDateTime);
+            Row row = RowFactory.create(logLevel[index], timestamp);
+            rows.add(row);
+        }
+
+        System.out.println("Dummy Data Creation completed: " + LocalDateTime.now());
+        return rows;
     }
 }

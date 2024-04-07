@@ -5,7 +5,6 @@ import com.samhad.spark.common.Utility;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions;
 import org.apache.spark.sql.types.DataTypes;
@@ -17,11 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.date_format;
@@ -40,7 +37,7 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
     public void execute(SparkSession spark) {
         logFileStart(LOGGER, this.getClass());
 
-        List<Row> inMemoryRows = generateRows(10000, 2023);
+        List<Row> inMemoryRows = Utility.generateDummyLogs(10000, 2023);
         StructField[] fields = {
                 new StructField("level", DataTypes.StringType, false, Metadata.empty()),
                 new StructField("datetime", DataTypes.TimestampType, false, Metadata.empty())
@@ -181,26 +178,6 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
                         functions.current_timestamp(),
                         functions.md5(functions.date_format(col(maxDateTimeAlias), "hh:mm:ss"))
                 ).show(false); // the dataset used in lesson 9, 10 is better when used with these functions.
-    }
-
-    private List<Row> generateRows(int recordCount, int startYear) {
-        System.out.println("Creating Dummy Data start: " + LocalDateTime.now());
-        List<Row> rows = new ArrayList<>(recordCount);
-        final String[] logLevel = {"WARN", "INFO", "DEBUG", "ERROR", "TRACE"};
-        int logLevelArraySize = logLevel.length;
-//        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-        for (int i = 0; i < recordCount; i++) {
-            int index = ThreadLocalRandom.current().nextInt(0, logLevelArraySize);
-            LocalDateTime randomDateTime = Utility.getRandomDateTime(
-                    LocalDateTime.of(startYear, 1, 1, 0, 0),
-                    LocalDateTime.now());
-            Timestamp timestamp = Timestamp.valueOf(randomDateTime);
-            Row row = RowFactory.create(logLevel[index], timestamp);
-            rows.add(row);
-        }
-
-        System.out.println("Dummy Data Creation completed: " + LocalDateTime.now());
-        return rows;
     }
 
     private void printRows(List<Row> rows, int numberOfRows) {
