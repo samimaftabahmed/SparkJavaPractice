@@ -5,6 +5,8 @@ import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,5 +133,18 @@ public class Utility {
         Instant between = getRandomInstant(startEpochDay, endEpochDay);
 
         return LocalDateTime.ofInstant(between, ZoneOffset.UTC);
+    }
+
+    /**
+     * Reads the 'students.csv' file.
+     *
+     * @param spark The SparkSession
+     * @return Dataset<Row>
+     */
+    public static Dataset<Row> getStudentsDataset(SparkSession spark) {
+        LOGGER.info("Reading Students Dataset file 'students.csv'");
+        Dataset<Row> dataset = spark.read().option("header", true)
+                .csv("src/main/resources/dataset/students.csv");
+        return dataset;
     }
 }

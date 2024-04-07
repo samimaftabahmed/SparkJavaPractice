@@ -1,6 +1,7 @@
 package com.samhad.spark.module2_sparkSQL.lesson__10;
 
 import com.samhad.spark.common.SparkTask;
+import com.samhad.spark.common.Utility;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -22,8 +23,7 @@ public class Filters implements SparkTask {
     public void execute(SparkSession spark) {
         logFileStart(LOGGER, this.getClass());
 //      header:  student_id,exam_center_id,subject,year,quarter,score,grade
-        Dataset<Row> dataset = spark.read().option("header", true)
-                .csv("src/main/resources/dataset/students.csv");
+        Dataset<Row> dataset = Utility.getStudentsDataset(spark);
 
         // filtering records using SQL like expression. Using just needs the where clause.
         Dataset<Row> filter = dataset.filter("subject='Math' and grade='A+' and score >= 93");

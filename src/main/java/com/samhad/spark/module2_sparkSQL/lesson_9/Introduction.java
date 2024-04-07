@@ -1,6 +1,7 @@
 package com.samhad.spark.module2_sparkSQL.lesson_9;
 
 import com.samhad.spark.common.SparkTask;
+import com.samhad.spark.common.Utility;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -19,8 +20,7 @@ public class Introduction implements SparkTask {
     public void execute(SparkSession spark) {
         logFileStart(LOGGER, this.getClass());
 //        student_id,exam_center_id,subject,year,quarter,score,grade
-        Dataset<Row> dataset = spark.read().option("header", true)
-                .csv("src/main/resources/dataset/students.csv");
+        Dataset<Row> dataset = Utility.getStudentsDataset(spark);
         dataset.show(20);
         long count = dataset.count();
         LOGGER.info("Data Count: {}", count);
