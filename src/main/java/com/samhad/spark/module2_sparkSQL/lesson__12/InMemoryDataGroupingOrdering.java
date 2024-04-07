@@ -6,6 +6,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.functions;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
@@ -13,6 +14,7 @@ import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,7 +29,7 @@ import static org.apache.spark.sql.functions.date_format;
  * Creating in-memory DataFrame programmatically, using built-in Spark SQL functions, Grouping, Ordering.
  * Using the DataFrame API.
  * Creating a Pivot Table.
- * Section: 19 to 25.
+ * Section: 19 to 26.
  */
 public class InMemoryDataGroupingOrdering implements SparkTask {
 
@@ -40,7 +42,7 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
         List<Row> inMemoryRows = generateRows(10000, 2023);
         StructField[] fields = {
                 new StructField("level", DataTypes.StringType, false, Metadata.empty()),
-                new StructField("datetime", DataTypes.StringType, false, Metadata.empty())
+                new StructField("datetime", DataTypes.TimestampType, false, Metadata.empty())
         };
 
         StructType structType = new StructType(fields);
@@ -52,6 +54,11 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
         groupingOrderingUsingSparkSQL(spark);
         groupingOrderingUsingDatasetAPI(spark, dataFrame);
         usingPivotTable(spark, dataFrame);
+
+        // using aggregate function and max
+        dataFrame.groupBy(col("level"))
+                .agg(functions.max(col("datetime")))
+                .show(); // the dataset used in lesson 9, 10 is better when used with these functions.
     }
 
     private void groupingOrderingUsingSparkSQL(SparkSession spark) {
@@ -142,14 +149,14 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
         List<Row> rows = new ArrayList<>(recordCount);
         final String[] logLevel = {"WARN", "INFO", "DEBUG", "ERROR", "TRACE"};
         int logLevelArraySize = logLevel.length;
-        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+//        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         for (int i = 0; i < recordCount; i++) {
             int index = ThreadLocalRandom.current().nextInt(0, logLevelArraySize);
             LocalDateTime randomDateTime = Utility.getRandomDateTime(
                     LocalDateTime.of(startYear, 1, 1, 0, 0),
                     LocalDateTime.now());
-
-            Row row = RowFactory.create(logLevel[index], randomDateTime.format(pattern));
+            Timestamp timestamp = Timestamp.valueOf(randomDateTime);
+            Row row = RowFactory.create(logLevel[index], timestamp);
             rows.add(row);
         }
 
@@ -161,13 +168,13 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
         int size = Math.min(numberOfRows, rows.size());
         for (int i = 0; i < size; i++) {
             Row row = rows.get(i);
-            List<String> dateTimes = row.getList(2);
+            List<Timestamp> dateTimes = row.getList(2);
             String level = row.getAs("level");
             String count = row.getAs("count").toString();
             System.out.println("level: %s, count: %s".formatted(level, count));
             int min = Math.min(dateTimes.size(), 10); // showing max 10 to prevent console log getting overflowed
             for (int j = 0; j < min; j++) {
-                String dateTime = dateTimes.get(j);
+                Timestamp dateTime = dateTimes.get(j);
                 System.out.println("dateTime: %s".formatted(dateTime));
             }
 
