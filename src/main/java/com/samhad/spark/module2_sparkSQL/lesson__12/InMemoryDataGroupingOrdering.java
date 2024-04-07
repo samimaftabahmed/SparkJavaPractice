@@ -2,6 +2,7 @@ package com.samhad.spark.module2_sparkSQL.lesson__12;
 
 import com.samhad.spark.common.SparkTask;
 import com.samhad.spark.common.Utility;
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -46,6 +47,7 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
         };
 
         StructType structType = new StructType(fields);
+        LOGGER.info("Creating DataFrame from a List of Row.");
         Dataset<Row> dataFrame = spark.createDataFrame(inMemoryRows, structType);
         dataFrame.show(10);
 
@@ -64,31 +66,42 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
     private void groupingOrderingUsingSparkSQL(SparkSession spark) {
         LOGGER.info("Using SparkSQL for Grouping and Ordering.");
 
-        Dataset<Row> resultDataset =
-                spark.sql("select level, count(level) as count from log_table group by level order by count desc");
+        String sqlQuery = "select level, count(level) as count from log_table group by level order by count desc";
+        LOGGER.info("Executing SQL Query: {}", sqlQuery);
+        Dataset<Row> resultDataset = spark.sql(sqlQuery);
         resultDataset.show();
 
         // Check https://spark.apache.org/docs/3.5.1/api/sql/ for more built-in SparkSQL functions.
-        resultDataset =
-                spark.sql("select level, count(level) as count, collect_list(datetime) as dateTimes " +
-                        "from log_table group by level");
         // group by 'key' negatively impacts performance of the JVM, just like groupByKey() in RDD
+        sqlQuery = "select level, count(level) as count, collect_list(datetime) as dateTimes " +
+                "from log_table group by level";
+        LOGGER.info("Executing SQL Query: {}", sqlQuery);
+        resultDataset = spark.sql(sqlQuery);
         resultDataset.show();
-//        resultDataset.show(2, false);
+
+        LOGGER.info("Showing with truncate=false.");
+//         if truncate parameter false is used then value in the column will not be truncated by ellipsis.
+//         By default, values are truncated.
+//        resultDataset.show(2, false); // commenting it as executing this messes the console log.
 
         List<Row> rows = resultDataset.collectAsList();
         printRows(rows, 10);
 
         // ordering the logs based on the month and level.
-        // built-ib SparkSQL functions first, date_format and cast is used.
+        // built-in SparkSQL functions first, date_format and cast is used.
         // first picks out the first element from a collection.
         // cast is used to cast to a particular datatype.
         // date_format is used to parse the date and return us in our specified format.
+        sqlQuery = "select level, date_format(datetime,'MMMM') as month, " +
+                " cast( first( date_format(datetime,'M')) as int) as monthNum, " +
+                " count(1) as total from log_table " +
+                " group by level,month " +
+                " order by monthNum,level";
+        LOGGER.info("Sorting results based on Month. Note: the 'monthNum' column is dropped from the DataFrame.");
+        LOGGER.info("Executing SQL Query: {}", sqlQuery);
         resultDataset = spark
-                .sql("select level, date_format(datetime,'MMMM') as month, " +
-                        " cast( first( date_format(datetime,'M')) as int) as monthNum, " +
-                        "count(1) as total from log_table group by level,month order by monthNum,level")
-                .drop("monthNum");
+                .sql(sqlQuery)
+                .drop("monthNum"); // dropping unnecessary column from the dataset
 
         resultDataset.show(100);
     }
@@ -96,56 +109,70 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
     private void groupingOrderingUsingDatasetAPI(SparkSession spark, Dataset<Row> dataFrame) {
         LOGGER.info("Using DataSet / DataFrame API :: select() and selectExpr(), for Grouping and Ordering.");
 
+        LOGGER.info("Selecting the column 'level' with select() method.");
         Dataset<Row> resultDataset = dataFrame.select("level"); // we can select the columns of the dataset.
         resultDataset.show();
 
+        LOGGER.info("Selecting with selectExpr() for executing spark_sql functions during selection.");
         // To execute a sparkSQL built-in function selectExpr() needs to be used.
         // Also, columns can be used with selectExpr() as well.
         resultDataset = dataFrame.selectExpr("level", "date_format(datetime,'MMMM') as month");
         resultDataset.show();
 
+        Column levelCol = col("level");
+        Column datetimeCol = col("datetime");
+        Column monthNumCol = col("monthNum");
+        Column monthCol = col("month");
+
+        LOGGER.info("Sorting results based on Month. The equivalent SQL Query was executed few moments ago. Check logs.");
         // selection using the Dataset API.
         resultDataset = dataFrame
                 .select(
-                        col("level"),
-                        date_format(col("datetime"), "MMMM").alias("month"),
-                        date_format(col("datetime"), "M").alias("monthNum").cast(DataTypes.IntegerType)
+                        levelCol,
+                        date_format(datetimeCol, "MMMM").alias("month"),
+                        date_format(datetimeCol, "M").alias("monthNum").cast(DataTypes.IntegerType)
                 )
-                .groupBy(col("level"), col("month"), col("monthNum"))
+                .groupBy(levelCol, monthCol, monthNumCol)
                 .count().withColumnRenamed("count", "total")
-                .orderBy(col("monthNum"), col("level"))
-                .drop(col("monthNum"));
+                .orderBy(monthNumCol, levelCol)
+                .drop(monthNumCol);
         resultDataset.show(100);
     }
 
     private void usingPivotTable(SparkSession spark, Dataset<Row> dataFrame) {
+        LOGGER.info("Creating Pivot Table with Spark.");
+        Column levelCol = col("level");
+        Column datetimeCol = col("datetime");
+
         // spark creating pivot table with columns auto-detected
         Dataset<Row> resultDataset = dataFrame
                 .select(
-                        col("level"),
-                        date_format(col("datetime"), "MMMM").alias("month"),
-                        date_format(col("datetime"), "M").alias("monthNum").cast(DataTypes.IntegerType)
+                        levelCol,
+                        date_format(datetimeCol, "MMMM").alias("month"),
+                        date_format(datetimeCol, "M").alias("monthNum").cast(DataTypes.IntegerType)
                 )
-                .groupBy(col("level")).pivot("month")
+                .groupBy(levelCol).pivot("month")
                 .count();
         resultDataset.show(100);
 
+        LOGGER.info("Creating Pivot table with the Column names provided.");
         List<Object> monthList = getPivotColumns();
         // spark creating pivot table with columns being user-provided. This helps in performance.
         resultDataset = dataFrame
                 .select(
-                        col("level"),
-                        date_format(col("datetime"), "MMMM").alias("month"),
-                        date_format(col("datetime"), "M").alias("monthNum").cast(DataTypes.IntegerType)
+                        levelCol,
+                        date_format(datetimeCol, "MMMM").alias("month"),
+                        date_format(datetimeCol, "M").alias("monthNum").cast(DataTypes.IntegerType)
                 )
-                .groupBy(col("level")).pivot("month", monthList)
+                .groupBy(levelCol)
+                .pivot("month", monthList)
                 .count()
                 .na().fill(0); // na() checks for null and allows us to fill the null values with a some value.
         resultDataset.show(100);
     }
 
     private List<Row> generateRows(int recordCount, int startYear) {
-        System.out.println("Creating Data start: " + LocalDateTime.now());
+        System.out.println("Creating Dummy Data start: " + LocalDateTime.now());
         List<Row> rows = new ArrayList<>(recordCount);
         final String[] logLevel = {"WARN", "INFO", "DEBUG", "ERROR", "TRACE"};
         int logLevelArraySize = logLevel.length;
@@ -160,12 +187,13 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
             rows.add(row);
         }
 
-        System.out.println("Data Creation completed: " + LocalDateTime.now());
+        System.out.println("Dummy Data Creation completed: " + LocalDateTime.now());
         return rows;
     }
 
     private void printRows(List<Row> rows, int numberOfRows) {
         int size = Math.min(numberOfRows, rows.size());
+        LOGGER.info("Printing '{}' number of collected Rows.", size);
         for (int i = 0; i < size; i++) {
             Row row = rows.get(i);
             List<Timestamp> dateTimes = row.getList(2);
@@ -194,6 +222,8 @@ public class InMemoryDataGroupingOrdering implements SparkTask {
             String calendarMonth = dateTime.format(pattern);
             monthList.add(calendarMonth);
         }
+
+        LOGGER.info("Created Pivot columns: {}", monthList);
         return monthList;
     }
 }
