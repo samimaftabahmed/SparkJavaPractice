@@ -2,6 +2,7 @@ package com.samhad.spark.module2_sparkSQL.lesson__14;
 
 import com.samhad.spark.common.SparkTask;
 import com.samhad.spark.common.Utility;
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -19,10 +20,12 @@ import java.time.Month;
 import java.util.List;
 
 import static org.apache.spark.sql.functions.col;
+import static org.apache.spark.sql.functions.date_format;
 
 /**
- * Creating and implementing User-Defined Functions in DataFrame API and SparkSQL.
- * Section 28.
+ * Creating and implementing User-Defined Functions in DataFrame API and SparkSQL. Tried some Performance optimisations
+ * with SparkSQL and Dataset API.
+ * Section 28, 29.
  */
 public class UserDefinedFunctions implements SparkTask, Serializable {
 
@@ -31,6 +34,11 @@ public class UserDefinedFunctions implements SparkTask, Serializable {
     @Override
     public void execute(SparkSession spark) {
         logFileStart(LOGGER, this.getClass());
+        // To change the no. of partitions, we use the following config.
+        // More the no. of partitions, more the no. of Tasks in a Job.
+        // By default, in Spark 3, it is seen that the number of partitions is equal to the number of cores + virtual cores.
+//        spark.conf().set("spark.sql.shuffle.partitions", "24");
+
         // header: level, datetime
         Dataset<Row> logsDataset = createLogsDataset(spark);
         // header: student_id,exam_center_id,subject,year,quarter,score,grade
@@ -76,18 +84,47 @@ public class UserDefinedFunctions implements SparkTask, Serializable {
         LOGGER.info("Executing SQL Query: {}", sqlQuery);
         spark.sql(sqlQuery).show(100);
 
+        String monthNumUDF = "monthNumUDF";
         // creating a new UDF
-        spark.udf().register("monthNumUDF",
+        spark.udf().register(monthNumUDF,
                 (String month) -> Month.valueOf(month.toUpperCase()).getValue(),
                 DataTypes.IntegerType);
 
         // executing the same query above but using UDF.
+//        sqlQuery = "select level, date_format(datetime,'MMMM') as month, " +
+//                " count(1) as total from log_table " +
+//                " group by level,month " +
+//                " order by monthNumUDF(month),level";
+//        LOGGER.info("Executing SQL Query: {}", sqlQuery);
+//        spark.sql(sqlQuery).show(100);
+
+        // Executing the same query above but optimising the performance of the query.
+        // When "group by" clause has the same columns or params as "order by" clause, then we are able to reduce a spark job,
+        // thereby improving the performance.
         sqlQuery = "select level, date_format(datetime,'MMMM') as month, " +
-                " count(1) as total from log_table " +
-                " group by level,month " +
+                " monthNumUDF(month), count(1) as total from log_table " +
+                " group by level,month,monthNumUDF(month) " +
                 " order by monthNumUDF(month),level";
         LOGGER.info("Executing SQL Query: {}", sqlQuery);
         spark.sql(sqlQuery).show(100);
+
+        Column levelCol = col("level");
+        Column datetimeCol = col("datetime");
+        Column monthCol = col("month");
+
+        // In Spark 2, programmatically written codes with the Dataset API are approximately 4 times faster than
+        // SparkSQL codes during execution, but the same cannot be observed in Spark 3. Maybe in bigger operations this
+        // might hold true.
+        logsDataset
+                .select(
+                        levelCol,
+                        date_format(datetimeCol, "MMMM").alias("month")
+                )
+                .groupBy(levelCol, monthCol, functions.callUDF(monthNumUDF, monthCol))
+                .count().withColumnRenamed("count", "total")
+                .orderBy(functions.callUDF(monthNumUDF, monthCol), levelCol)
+                .show(100);
+
     }
 
     private void multipleColumnUDF(Dataset<Row> studentsDataset, SparkSession spark) {
