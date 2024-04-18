@@ -24,8 +24,10 @@ import static org.apache.spark.sql.functions.date_format;
 
 /**
  * Creating and implementing User-Defined Functions in DataFrame API and SparkSQL. Tried some Performance optimisations
- * with SparkSQL and Dataset API.
- * Section 28, 29.
+ * with SparkSQL and Dataset API. HashAggregation vs SortAggregation.
+ * Spark Optimizer "Catalyst" performs optimisations on DataFrames or Datasets but not on RDD. So theoretically, RDDs are
+ * faster than Datasets or DataFrames.
+ * Section 28, 29, 30, 31.
  */
 public class UserDefinedFunctions implements SparkTask, Serializable {
 
@@ -34,10 +36,18 @@ public class UserDefinedFunctions implements SparkTask, Serializable {
     @Override
     public void execute(SparkSession spark) {
         logFileStart(LOGGER, this.getClass());
-        // To change the no. of partitions, we use the following config.
-        // More the no. of partitions, more the no. of Tasks in a Job.
-        // By default, in Spark 3, it is seen that the number of partitions is equal to the number of cores + virtual cores.
+        /**
+         To change the no. of partitions, we use the following config. More the no. of partitions, more the no. of Tasks
+         in a Job. By default, in Spark 3, it is seen that the number of partitions = number of cores + virtual cores.
+        */
 //        spark.conf().set("spark.sql.shuffle.partitions", "24");
+
+        /**
+          By default, during group Hash Aggregation is used if the grouping value is mutable. We can force the usage of
+          Hash Aggregation during sorting with the following config. But spark will fallback to Sort Aggregation if
+          there is not enough memory for Hash Aggregation.
+        */
+//        spark.conf().set("spark.sql.execution.useObjectHashAggregateExec", "true");
 
         // header: level, datetime
         Dataset<Row> logsDataset = createLogsDataset(spark);
@@ -78,9 +88,9 @@ public class UserDefinedFunctions implements SparkTask, Serializable {
         // cast is used to cast to a particular datatype.
         // date_format is used to parse the date and return us in our specified format.
         String sqlQuery = "select level, date_format(datetime,'MMMM') as month, " +
-                " count(1) as total from log_table " +
-                " group by level,month " +
-                " order by cast( first( date_format(datetime,'M')) as int),level";
+                " cast(date_format(datetime,'M') as int) as monthNum, count(1) as total from log_table " +
+                " group by level,month,monthNum " +
+                " order by monthNum,level";
         LOGGER.info("Executing SQL Query: {}", sqlQuery);
         spark.sql(sqlQuery).show(100);
 
@@ -106,7 +116,14 @@ public class UserDefinedFunctions implements SparkTask, Serializable {
                 " group by level,month,monthNumUDF(month) " +
                 " order by monthNumUDF(month),level";
         LOGGER.info("Executing SQL Query: {}", sqlQuery);
-        spark.sql(sqlQuery).show(100);
+        Dataset<Row> resultsSQL = spark.sql(sqlQuery);
+        resultsSQL.show(100);
+        /**
+         Dataset.explain() shows the execution plan in textual format. In spark2, with sparkSQL when using "group by" clause
+         it does a Sort Aggregation. In Spark 3, it uses Hash Aggregation. Hash Aggregation is faster than Sort Aggregation
+         but Sort Aggregation is memory efficient than Hash Aggregation as it does in-memory sorting.
+        */
+        resultsSQL.explain();
 
         Column levelCol = col("level");
         Column datetimeCol = col("datetime");
@@ -115,16 +132,16 @@ public class UserDefinedFunctions implements SparkTask, Serializable {
         // In Spark 2, programmatically written codes with the Dataset API are approximately 4 times faster than
         // SparkSQL codes during execution, but the same cannot be observed in Spark 3. Maybe in bigger operations this
         // might hold true.
-        logsDataset
+        Dataset<Row> resultsJava = logsDataset
                 .select(
                         levelCol,
                         date_format(datetimeCol, "MMMM").alias("month")
                 )
                 .groupBy(levelCol, monthCol, functions.callUDF(monthNumUDF, monthCol))
                 .count().withColumnRenamed("count", "total")
-                .orderBy(functions.callUDF(monthNumUDF, monthCol), levelCol)
-                .show(100);
-
+                .orderBy(functions.callUDF(monthNumUDF, monthCol), levelCol);
+        resultsJava.show(100);
+        resultsJava.explain();
     }
 
     private void multipleColumnUDF(Dataset<Row> studentsDataset, SparkSession spark) {
