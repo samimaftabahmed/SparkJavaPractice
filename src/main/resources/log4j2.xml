@@ -10,6 +10,9 @@
         <Logger name="org.apache" level="warn" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
+        <Logger name="org.apache.spark.storage" level="error" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
         <Logger name="org.sparkproject" level="warn" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
