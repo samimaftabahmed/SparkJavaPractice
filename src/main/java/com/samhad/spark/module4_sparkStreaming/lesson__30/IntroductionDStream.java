@@ -34,9 +34,18 @@ public class IntroductionDStream implements SparkTask {
             return new Tuple2<>(level, 1);
         });
 
+        /*
+        // The following code processes logs based on single batch.
         pairDStream
                 .reduceByKey(Integer::sum)
                 .print(10);
+        */
+
+        // the following code will process logs based on multiple batches for a particular window of time.
+        pairDStream
+                .reduceByKeyAndWindow(Integer::sum, Durations.seconds(30))
+                .print(10);
+
 //        dStream.print(10);
 
         try {
