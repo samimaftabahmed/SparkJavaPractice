@@ -13,8 +13,9 @@ import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 /**
- * Implements a DStream.
+ * Implements a DStream with batches and windows
  * Note: DStream is deprecated.
+ * Section 44.
  */
 public class IntroductionDStream implements SparkTask {
 
