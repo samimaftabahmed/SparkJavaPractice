@@ -8,6 +8,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
 import java.util.stream.IntStream;
 
+/**
+ * A demo program to use a Phaser as a Latch.
+ */
 public class PracticePhaserAsLatch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PracticePhaserAsLatch.class);

@@ -10,6 +10,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
+/**
+ * A demo program to use a Phaser as a CyclicBarrier.
+ */
 public class PracticePhaserAsCyclicBarrier {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PracticePhaserAsCyclicBarrier.class);
