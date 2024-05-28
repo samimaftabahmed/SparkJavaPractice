@@ -1,4 +1,4 @@
-package com.samhad.spark.misc.java_practice;
+package com.samhad.spark.misc.java_practice.phaser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
